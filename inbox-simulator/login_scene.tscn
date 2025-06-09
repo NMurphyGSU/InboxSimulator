@@ -1,0 +1,83 @@
+[gd_scene load_steps=2 format=3 uid="uid://b8buoh1os3sjj"]
+
+[ext_resource type="Script" path="res://Account_Creation_And_Access.gd" id="1_5j6st"]
+
+[node name="LoginScene" type="Node"]
+script = ExtResource("1_5j6st")
+
+[node name="CanvasLayer" type="CanvasLayer" parent="."]
+
+[node name="Control" type="Control" parent="CanvasLayer"]
+layout_mode = 3
+anchors_preset = 0
+offset_left = 1.0
+offset_top = 1.0
+offset_right = 1281.0
+offset_bottom = 721.0
+pivot_offset = Vector2(640, 360)
+
+[node name="Panel_Background" type="Panel" parent="CanvasLayer/Control"]
+offset_right = 1280.0
+offset_bottom = 720.0
+pivot_offset = Vector2(640, 360)
+
+[node name="VBoxContainer_Input" type="VBoxContainer" parent="CanvasLayer/Control"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -250.0
+offset_top = -100.0
+offset_right = 250.0
+offset_bottom = 100.0
+grow_horizontal = 2
+grow_vertical = 2
+pivot_offset = Vector2(250, 100)
+
+[node name="Label_Username" type="Label" parent="CanvasLayer/Control/VBoxContainer_Input"]
+layout_mode = 2
+text = "USERNAME:"
+
+[node name="LineEdit_Username" type="LineEdit" parent="CanvasLayer/Control/VBoxContainer_Input"]
+layout_mode = 2
+
+[node name="Label_Password" type="Label" parent="CanvasLayer/Control/VBoxContainer_Input"]
+layout_mode = 2
+text = "PASSWORD:"
+
+[node name="LineEdit_Password" type="LineEdit" parent="CanvasLayer/Control/VBoxContainer_Input"]
+layout_mode = 2
+
+[node name="Button_Login" type="Button" parent="CanvasLayer/Control"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -225.0
+offset_top = 78.86
+offset_right = -75.0
+offset_bottom = 128.86
+grow_horizontal = 2
+grow_vertical = 2
+pivot_offset = Vector2(75, 25)
+text = "LOGIN"
+
+[node name="Button_CreateAccount" type="Button" parent="CanvasLayer/Control"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = 75.0
+offset_top = 78.86
+offset_right = 225.0
+offset_bottom = 128.86
+grow_horizontal = 2
+grow_vertical = 2
+pivot_offset = Vector2(75, 25)
+text = "Create Account"
