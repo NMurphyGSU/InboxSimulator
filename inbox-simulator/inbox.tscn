@@ -1,0 +1,311 @@
+[gd_scene load_steps=9 format=3 uid="uid://b5htw5gukwg7e"]
+
+[ext_resource type="Texture2D" uid="uid://bd7bcwi4o1t1s" path="res://Assets/filefoldericon.png" id="1_2mel5"]
+[ext_resource type="Script" path="res://InboxScene.gd" id="1_43n8t"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_6j52u"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_7bjou"]
+bg_color = Color(0.176471, 0.160784, 0.14902, 1)
+corner_detail = 1
+shadow_color = Color(0, 0, 0, 1)
+shadow_offset = Vector2(5, 5)
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_5r57s"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_3ran1"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_8aufn"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_se45y"]
+
+[node name="InboxScene" type="Node2D"]
+
+[node name="Panel" type="Panel" parent="."]
+offset_right = 1284.0
+offset_bottom = 721.0
+script = ExtResource("1_43n8t")
+
+[node name="Scene_Layout" type="Control" parent="Panel"]
+anchors_preset = 0
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="Backround" type="ColorRect" parent="Panel/Scene_Layout"]
+layout_mode = 0
+offset_left = 12.0
+offset_top = 15.0
+offset_right = 1270.0
+offset_bottom = 706.0
+
+[node name="Side_Bar" type="ColorRect" parent="Panel/Scene_Layout"]
+layout_mode = 0
+offset_left = 12.0
+offset_top = 18.0
+offset_right = 231.0
+offset_bottom = 706.0
+color = Color(0.698039, 0.705882, 0.698039, 1)
+
+[node name="Top_Bar" type="ColorRect" parent="Panel/Scene_Layout"]
+layout_mode = 0
+offset_left = 12.0
+offset_top = 15.0
+offset_right = 1270.0
+offset_bottom = 110.0
+color = Color(0.340339, 0.340339, 0.340339, 1)
+
+[node name="Inbox_Simulator" type="Label" parent="Panel/Scene_Layout"]
+layout_mode = 0
+offset_left = 44.0
+offset_top = 36.0
+offset_right = 312.0
+offset_bottom = 86.0
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+theme_override_font_sizes/font_size = 36
+text = "InboxSimulator"
+
+[node name="Time_Remaining" type="Label" parent="Panel/Scene_Layout"]
+layout_mode = 0
+offset_left = 474.0
+offset_top = 51.0
+offset_right = 607.0
+offset_bottom = 74.0
+text = "Time Remaining: "
+
+[node name="Time" type="Label" parent="Panel/Scene_Layout/Time_Remaining"]
+layout_mode = 0
+offset_left = 145.0
+offset_top = 1.0
+offset_right = 185.0
+offset_bottom = 24.0
+theme_override_styles/normal = SubResource("StyleBoxEmpty_6j52u")
+text = "0"
+
+[node name="Toggle" type="CheckButton" parent="Panel/Scene_Layout"]
+layout_mode = 0
+offset_left = 879.0
+offset_top = 56.0
+offset_right = 923.0
+offset_bottom = 80.0
+
+[node name="Label" type="Label" parent="Panel/Scene_Layout"]
+layout_mode = 0
+offset_left = 789.0
+offset_top = 54.0
+offset_right = 873.0
+offset_bottom = 77.0
+text = "Show/Hide"
+
+[node name="Exit_Button" type="Button" parent="Panel"]
+layout_mode = 0
+offset_left = 1121.0
+offset_top = 38.0
+offset_right = 1238.0
+offset_bottom = 85.0
+tooltip_text = "Exit the simulation"
+theme_override_colors/font_hover_pressed_color = Color(0.172833, 0.172833, 0.172833, 1)
+theme_override_colors/font_pressed_color = Color(0, 0, 0.972549, 1)
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_font_sizes/font_size = 22
+theme_override_styles/normal = SubResource("StyleBoxFlat_7bjou")
+text = "Exit Inbox"
+
+[node name="Side_Panel" type="Control" parent="Panel"]
+anchors_preset = 0
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="Folders" type="Label" parent="Panel/Side_Panel"]
+layout_mode = 0
+offset_left = 16.0
+offset_top = 139.0
+offset_right = 73.0
+offset_bottom = 162.0
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+text = "Folders"
+
+[node name="Sent_Items_Selection" type="ColorRect" parent="Panel/Side_Panel"]
+layout_mode = 0
+offset_left = 24.0
+offset_top = 226.0
+offset_right = 223.0
+offset_bottom = 266.0
+
+[node name="Inbox_Selection" type="ColorRect" parent="Panel/Side_Panel"]
+layout_mode = 0
+offset_left = 23.0
+offset_top = 175.0
+offset_right = 222.0
+offset_bottom = 215.0
+
+[node name="Inbox_Number" type="Label" parent="Panel/Side_Panel"]
+layout_mode = 0
+offset_left = 176.0
+offset_top = 184.0
+offset_right = 216.0
+offset_bottom = 207.0
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+text = "0
+"
+
+[node name="Inbox_Button" type="Button" parent="Panel/Side_Panel"]
+layout_mode = 0
+offset_left = 22.0
+offset_top = 174.0
+offset_right = 223.0
+offset_bottom = 215.0
+theme_override_colors/font_pressed_color = Color(0, 0, 0.984314, 1)
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+theme_override_styles/normal = SubResource("StyleBoxEmpty_5r57s")
+text = "   Inbox"
+alignment = 0
+
+[node name="Sent_Items_Number" type="Label" parent="Panel/Side_Panel"]
+layout_mode = 0
+offset_left = 178.0
+offset_top = 234.0
+offset_right = 218.0
+offset_bottom = 257.0
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+text = "0"
+
+[node name="Sent_Items_Button" type="Button" parent="Panel/Side_Panel"]
+layout_mode = 0
+offset_left = 23.0
+offset_top = 225.0
+offset_right = 223.0
+offset_bottom = 266.0
+theme_override_colors/font_pressed_color = Color(0, 0, 0.984314, 1)
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+theme_override_colors/icon_hover_pressed_color = Color(1, 1, 1, 1)
+theme_override_styles/normal = SubResource("StyleBoxEmpty_3ran1")
+text = "   Sent Items"
+alignment = 0
+
+[node name="Drive_Panel" type="ColorRect" parent="Panel"]
+layout_mode = 0
+offset_left = 22.0
+offset_top = 291.0
+offset_right = 220.0
+offset_bottom = 442.0
+
+[node name="Drive_Label" type="Label" parent="Panel/Drive_Panel"]
+layout_mode = 0
+offset_left = 13.0
+offset_top = 14.0
+offset_right = 54.0
+offset_bottom = 37.0
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+text = "Drive"
+
+[node name="Filefoldericon" type="Sprite2D" parent="Panel/Drive_Panel"]
+position = Vector2(38, 97)
+scale = Vector2(0.37, 0.34)
+texture = ExtResource("1_2mel5")
+
+[node name="Filefoldericon2" type="Sprite2D" parent="Panel/Drive_Panel"]
+position = Vector2(38, 63)
+scale = Vector2(0.37, 0.34)
+texture = ExtResource("1_2mel5")
+
+[node name="Company_Info_Button" type="Button" parent="Panel/Drive_Panel"]
+layout_mode = 0
+offset_left = 69.0
+offset_top = 52.0
+offset_right = 177.0
+offset_bottom = 75.0
+theme_override_colors/font_pressed_color = Color(0, 0, 0.972549, 1)
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+theme_override_styles/normal = SubResource("StyleBoxEmpty_8aufn")
+text = "Company Info"
+
+[node name="Button" type="Button" parent="Panel/Drive_Panel"]
+layout_mode = 0
+offset_left = 71.0
+offset_top = 86.0
+offset_right = 146.0
+offset_bottom = 109.0
+theme_override_colors/font_pressed_color = Color(0, 0, 0.960784, 1)
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+theme_override_styles/normal = SubResource("StyleBoxEmpty_se45y")
+text = "Your Role"
+
+[node name="Instant_Messages" type="Control" parent="Panel"]
+anchors_preset = 0
+offset_left = 94.0
+offset_top = 519.0
+offset_right = 134.0
+offset_bottom = 559.0
+
+[node name="Instant_Messages_Label" type="Label" parent="Panel/Instant_Messages"]
+layout_mode = 0
+offset_left = -64.0
+offset_top = -48.0
+offset_right = 70.0
+offset_bottom = -25.0
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+text = "Instant Messages"
+
+[node name="Messages" type="Panel" parent="Panel"]
+layout_mode = 0
+offset_left = 231.0
+offset_top = 110.0
+offset_right = 533.0
+offset_bottom = 706.0
+
+[node name="Email1" type="RichTextLabel" parent="Panel/Messages"]
+layout_mode = 0
+offset_top = 1.0
+offset_right = 302.0
+offset_bottom = 107.0
+text = "Placeholder-1"
+
+[node name="Email2" type="RichTextLabel" parent="Panel/Messages"]
+layout_mode = 0
+offset_left = 2.0
+offset_top = 103.0
+offset_right = 302.0
+offset_bottom = 202.0
+text = "Placeholder-2"
+
+[node name="Email3" type="RichTextLabel" parent="Panel/Messages"]
+layout_mode = 0
+offset_left = 1.0
+offset_top = 204.0
+offset_right = 302.0
+offset_bottom = 320.0
+text = "Placeholder-3"
+
+[node name="Email4" type="RichTextLabel" parent="Panel/Messages"]
+layout_mode = 0
+offset_left = 3.0
+offset_top = 325.0
+offset_right = 299.0
+offset_bottom = 425.0
+text = "Placeholder-4"
+
+[node name="Email5" type="RichTextLabel" parent="Panel/Messages"]
+layout_mode = 0
+offset_left = 5.0
+offset_top = 428.0
+offset_right = 299.0
+offset_bottom = 529.0
+text = "Placeholder-5"
+
+[node name="Email6" type="RichTextLabel" parent="Panel/Messages"]
+layout_mode = 0
+offset_left = 1.0
+offset_top = 526.0
+offset_right = 302.0
+offset_bottom = 629.0
+text = "Placeholder-6"
+
+[node name="Main_Message" type="RichTextLabel" parent="Panel"]
+layout_mode = 0
+offset_left = 532.0
+offset_top = 111.0
+offset_right = 1268.0
+offset_bottom = 705.0
+text = "Show messages from DB here"
+
+[connection signal="pressed" from="Panel/Exit_Button" to="Panel" method="_on_exit_button_pressed"]
