@@ -1,0 +1,14 @@
+[
+  {
+    "sender": "Commander Grey",
+    "subject": "Mission Briefing",
+    "body": "[b]Your mission:[/b] Retrieve the artifact.\nProceed with caution near Sector 12.",
+    "read": false
+  },
+  {
+    "sender": "Control",
+    "subject": "Status Check-In",
+    "body": "Please confirm your location and status before 0800 hours.",
+    "read": false
+  }
+]

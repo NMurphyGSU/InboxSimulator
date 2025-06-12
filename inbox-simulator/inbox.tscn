@@ -216,7 +216,7 @@ theme_override_colors/font_color = Color(0, 0, 0, 1)
 theme_override_styles/normal = SubResource("StyleBoxEmpty_8aufn")
 text = "Company Info"
 
-[node name="Button" type="Button" parent="Drive_Panel"]
+[node name="Your_Role_Button" type="Button" parent="Drive_Panel"]
 layout_mode = 0
 offset_left = 71.0
 offset_top = 86.0
@@ -256,8 +256,7 @@ theme_override_colors/font_readonly_color = Color(0, 0, 0, 1)
 theme_override_colors/font_color = Color(0, 0, 0, 1)
 placeholder_text = "Hi!"
 
-[node name="Read_Messages" type="Control" parent="."]
-visible = false
+[node name="Unread_Messages" type="Control" parent="."]
 layout_mode = 3
 anchors_preset = 0
 offset_left = 233.0
@@ -265,7 +264,8 @@ offset_top = 107.0
 offset_right = 536.0
 offset_bottom = 706.0
 
-[node name="Email1" type="RichTextLabel" parent="Read_Messages"]
+[node name="Email1" type="RichTextLabel" parent="Unread_Messages"]
+visible = false
 layout_mode = 0
 offset_left = 5.0
 offset_top = 59.0
@@ -273,7 +273,8 @@ offset_right = 299.0
 offset_bottom = 160.0
 text = "Placeholder-1"
 
-[node name="Email2" type="RichTextLabel" parent="Read_Messages"]
+[node name="Email2" type="RichTextLabel" parent="Unread_Messages"]
+visible = false
 layout_mode = 0
 offset_left = 5.0
 offset_top = 169.0
@@ -281,7 +282,8 @@ offset_right = 299.0
 offset_bottom = 270.0
 text = "Placeholder-2"
 
-[node name="Email3" type="RichTextLabel" parent="Read_Messages"]
+[node name="Email3" type="RichTextLabel" parent="Unread_Messages"]
+visible = false
 layout_mode = 0
 offset_left = 5.0
 offset_top = 279.0
@@ -289,7 +291,8 @@ offset_right = 299.0
 offset_bottom = 380.0
 text = "Placeholder-3"
 
-[node name="Email4" type="RichTextLabel" parent="Read_Messages"]
+[node name="Email4" type="RichTextLabel" parent="Unread_Messages"]
+visible = false
 layout_mode = 0
 offset_left = 5.0
 offset_top = 389.0
@@ -297,7 +300,8 @@ offset_right = 299.0
 offset_bottom = 490.0
 text = "Placeholder-4"
 
-[node name="Email5" type="RichTextLabel" parent="Read_Messages"]
+[node name="Email5" type="RichTextLabel" parent="Unread_Messages"]
+visible = false
 layout_mode = 0
 offset_left = 5.0
 offset_top = 499.0
@@ -305,7 +309,14 @@ offset_right = 299.0
 offset_bottom = 600.0
 text = "Placeholder-5"
 
-[node name="Inbox_Label" type="Label" parent="Read_Messages"]
+[node name="Unread_Vbox" type="VBoxContainer" parent="Unread_Messages"]
+layout_mode = 0
+offset_left = 7.0
+offset_top = 47.0
+offset_right = 295.0
+offset_bottom = 597.0
+
+[node name="Inbox_Label" type="Label" parent="Unread_Messages"]
 layout_mode = 0
 offset_left = 6.0
 offset_top = 11.0
@@ -313,7 +324,7 @@ offset_right = 50.0
 offset_bottom = 34.0
 text = "Inbox"
 
-[node name="Unread_Messages" type="Control" parent="."]
+[node name="Read_Messages" type="Control" parent="."]
 layout_mode = 3
 anchors_preset = 0
 offset_left = 232.0
@@ -321,7 +332,8 @@ offset_top = 111.0
 offset_right = 535.0
 offset_bottom = 706.0
 
-[node name="Email6" type="RichTextLabel" parent="Unread_Messages"]
+[node name="Email6" type="RichTextLabel" parent="Read_Messages"]
+visible = false
 layout_mode = 0
 offset_left = 6.0
 offset_top = 55.0
@@ -329,7 +341,8 @@ offset_right = 300.0
 offset_bottom = 156.0
 text = "Placeholder-6"
 
-[node name="Email7" type="RichTextLabel" parent="Unread_Messages"]
+[node name="Email7" type="RichTextLabel" parent="Read_Messages"]
+visible = false
 layout_mode = 0
 offset_left = 6.0
 offset_top = 165.0
@@ -337,7 +350,8 @@ offset_right = 300.0
 offset_bottom = 266.0
 text = "Placeholder-7"
 
-[node name="Email8" type="RichTextLabel" parent="Unread_Messages"]
+[node name="Email8" type="RichTextLabel" parent="Read_Messages"]
+visible = false
 layout_mode = 0
 offset_left = 6.0
 offset_top = 275.0
@@ -345,7 +359,8 @@ offset_right = 300.0
 offset_bottom = 376.0
 text = "Placeholder-8"
 
-[node name="Email9" type="RichTextLabel" parent="Unread_Messages"]
+[node name="Email9" type="RichTextLabel" parent="Read_Messages"]
+visible = false
 layout_mode = 0
 offset_left = 6.0
 offset_top = 385.0
@@ -353,7 +368,8 @@ offset_right = 300.0
 offset_bottom = 486.0
 text = "Placeholder-9"
 
-[node name="Email10" type="RichTextLabel" parent="Unread_Messages"]
+[node name="Email10" type="RichTextLabel" parent="Read_Messages"]
+visible = false
 layout_mode = 0
 offset_left = 6.0
 offset_top = 495.0
@@ -361,7 +377,7 @@ offset_right = 300.0
 offset_bottom = 596.0
 text = "Placeholder-10"
 
-[node name="Inbox_Label" type="Label" parent="Unread_Messages"]
+[node name="Inbox_Label" type="Label" parent="Read_Messages"]
 layout_mode = 0
 offset_left = 7.0
 offset_top = 7.0
@@ -369,12 +385,19 @@ offset_right = 51.0
 offset_bottom = 30.0
 text = "Inbox"
 
+[node name="Read_Vbox" type="VBoxContainer" parent="Read_Messages"]
+layout_mode = 0
+offset_left = 7.0
+offset_top = 47.0
+offset_right = 295.0
+offset_bottom = 597.0
+
 [node name="Read_Unread" type="CheckButton" parent="."]
 offset_left = 376.0
 offset_top = 115.0
 offset_right = 527.0
 offset_bottom = 146.0
-text = "Read/Unread"
+text = "Unread/Read"
 
 [node name="Main_Message" type="Control" parent="."]
 layout_mode = 3
@@ -396,14 +419,14 @@ offset_left = 2.0
 offset_top = 1.0
 offset_right = 728.0
 offset_bottom = 493.0
+bbcode_enabled = true
 text = "Show messages from DB here"
 
 [node name="Response" type="Panel" parent="."]
-visible = false
-offset_left = 640.0
-offset_top = 244.0
-offset_right = 1185.0
-offset_bottom = 560.0
+offset_left = 641.0
+offset_top = 205.0
+offset_right = 1186.0
+offset_bottom = 584.0
 
 [node name="Question_Placeholder" type="RichTextLabel" parent="Response"]
 layout_mode = 0
@@ -490,6 +513,14 @@ theme_override_constants/outline_size = 1
 theme_override_font_sizes/font_size = 27
 theme_override_styles/normal = SubResource("StyleBoxEmpty_4bcak")
 text = "X"
+
+[node name="Submit_Button" type="Button" parent="Response"]
+layout_mode = 0
+offset_left = 446.0
+offset_top = 328.0
+offset_right = 532.0
+offset_bottom = 368.0
+text = "Submit"
 
 [node name="Answer" type="Panel" parent="."]
 visible = false
@@ -599,6 +630,7 @@ theme_override_styles/normal = SubResource("StyleBoxEmpty_4bcak")
 text = "X"
 
 [node name="Sent_Items" type="Panel" parent="."]
+visible = false
 offset_left = 233.0
 offset_top = 110.0
 offset_right = 536.0
@@ -653,17 +685,18 @@ offset_bottom = 31.0
 text = "Sent Items"
 
 [node name="Company_Info" type="ColorRect" parent="."]
+visible = false
 offset_left = 233.0
 offset_top = 109.0
 offset_right = 1269.0
 offset_bottom = 706.0
 
-[node name="Heading" type="Label" parent="Company_Info"]
+[node name="Company_Heading" type="Label" parent="Company_Info"]
 layout_mode = 0
 offset_left = 20.0
-offset_top = 14.0
-offset_right = 246.0
-offset_bottom = 64.0
+offset_top = 37.0
+offset_right = 318.0
+offset_bottom = 87.0
 theme_override_colors/font_color = Color(0, 0, 0, 1)
 theme_override_font_sizes/font_size = 28
 text = "Company Information"
@@ -678,12 +711,56 @@ theme_override_colors/font_color = Color(0, 0, 0, 1)
 text = "X"
 flat = true
 
+[node name="Company_Info_Message" type="RichTextLabel" parent="Company_Info"]
+layout_mode = 0
+offset_left = 70.0
+offset_top = 147.0
+offset_right = 974.0
+offset_bottom = 456.0
+text = "Placeholder"
+
+[node name="Your_Role" type="ColorRect" parent="."]
+visible = false
+offset_left = 240.0
+offset_top = 117.0
+offset_right = 1254.0
+offset_bottom = 699.0
+
+[node name="X_Button2" type="Button" parent="Your_Role"]
+layout_mode = 0
+offset_left = 1004.0
+offset_top = 2.0
+offset_right = 1022.0
+offset_bottom = 33.0
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+text = "X"
+flat = true
+
+[node name="Your_Role_Heading" type="Label" parent="Your_Role"]
+offset_left = 20.0
+offset_top = 37.0
+offset_right = 150.0
+offset_bottom = 76.0
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+theme_override_font_sizes/font_size = 28
+text = "Your Role"
+
+[node name="Your_Role_Message" type="RichTextLabel" parent="Your_Role"]
+layout_mode = 0
+offset_left = 70.0
+offset_top = 147.0
+offset_right = 974.0
+offset_bottom = 456.0
+
 [connection signal="pressed" from="Exit_Button" to="." method="_on_exit_button_pressed"]
 [connection signal="pressed" from="Side_Panel/Inbox_Button" to="." method="_on_inbox_button_pressed"]
 [connection signal="pressed" from="Side_Panel/Sent_Items_Button" to="." method="_on_sent_items_button_pressed"]
 [connection signal="pressed" from="Drive_Panel/Company_Info_Button" to="." method="_on_company_info_button_pressed"]
+[connection signal="pressed" from="Drive_Panel/Your_Role_Button" to="." method="_on_your_role_button_pressed"]
 [connection signal="toggled" from="Read_Unread" to="." method="_on_read_unread_toggled"]
 [connection signal="pressed" from="Main_Message/Reply" to="." method="_on_reply_pressed"]
 [connection signal="pressed" from="Response/Close_Button" to="." method="_on_close_button_pressed"]
+[connection signal="pressed" from="Response/Submit_Button" to="." method="_on_submit_button_pressed"]
 [connection signal="pressed" from="Answer/Close_Button" to="." method="_on_close_button_pressed"]
 [connection signal="pressed" from="Company_Info/X_Button" to="." method="_on_x_button_pressed"]
+[connection signal="pressed" from="Your_Role/X_Button2" to="." method="_on_x_button_2_pressed"]
