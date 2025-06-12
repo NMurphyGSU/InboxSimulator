@@ -11,6 +11,7 @@ func _ready() -> void:
 	$Unread_Messages.visible = false
 	$Read_Unread.visible = true
 	$Sent_Items.visible = false
+	$Company_Info.visible = false
 	pass # Replace with function body.
 
 
@@ -58,4 +59,14 @@ func _on_inbox_button_pressed() -> void:
 	$Unread_Messages.visible = false
 	$Read_Unread.visible  = true
 	$Sent_Items.visible = false
+	pass # Replace with function body.
+
+
+func _on_company_info_button_pressed() -> void:
+	$Company_Info.visible = true
+	pass # Replace with function body.
+
+
+func _on_x_button_pressed() -> void:
+	$Company_Info.visible = false
 	pass # Replace with function body.
