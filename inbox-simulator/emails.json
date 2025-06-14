@@ -3,12 +3,42 @@
     "sender": "Commander Grey",
     "subject": "Mission Briefing",
     "body": "[b]Your mission:[/b] Retrieve the artifact.\nProceed with caution near Sector 12.",
-    "read": false
+    "read": false,
+    "answered": false
   },
   {
     "sender": "Control",
     "subject": "Status Check-In",
     "body": "Please confirm your location and status before 0800 hours.",
-    "read": false
+    "read": false,
+    "answered": false
+  },
+{
+    "sender": "Status check",
+    "subject": "Update your information",
+    "body": "[b]Your mission:[/b] Retrieve the artifact.\nProceed with caution near Sector 12.",
+    "read": false,
+    "answered": false
+  },
+  {
+    "sender": "Code review",
+    "subject": "Lets meet at 10",
+    "body": "Please confirm your location and status before 0800 hours.",
+    "read": false,
+    "answered": false
+  },
+{
+    "sender": "Today's scrum",
+    "subject": "Is there an issue?",
+    "body": "[b]Your mission:[/b] Retrieve the artifact.\nProceed with caution near Sector 12.",
+    "read": false,
+    "answered": false
+  },
+  {
+    "sender": "JSON file",
+    "subject": "Good work!",
+    "body": "Please confirm your location and status before 0800 hours.",
+    "read": false,
+    "answered": false
   }
 ]

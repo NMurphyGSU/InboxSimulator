@@ -1,10 +1,9 @@
 extends Node2D
 
-var json_path = "res://emails.json" #still need to create the JSON file for the emails, so placeholder
-
+var json_path = "res://emails.json"
 var emails: Array = []
+var current_email = null
 
-# Called when the node enters the scene tree for the first time.
 func _ready():
 	$Read_Messages.visible = false
 	$Unread_Messages.visible = true
@@ -13,136 +12,199 @@ func _ready():
 	$Sent_Items.visible = false
 	$Company_Info.visible = false
 	$Your_Role.visible = false
-	
-	#open the file for reading
-	var file = FileAccess.open(json_path, FileAccess.READ) #this will call in the JSON file
-	assert(file.file_exists(json_path), "File path does not exist") #this will probably trigger for now, until placeholder is filled
-	
-	#read the content of the json file
-	var json = file.get_as_text() 
+
+	var file = FileAccess.open(json_path, FileAccess.READ)
+	assert(file.file_exists(json_path), "File path does not exist")
+
+	var json = file.get_as_text()
 	var json_object = JSON.new()
-	
-	#parse the JSON file
 	json_object.parse(json)
-	
-	#Store the parsed data in the content dictionary
 	emails = json_object.data
-	
-	#return emails
 	populate_unread_emails()
-
-	print("Loaded emails:", emails.size())
-	print("Unread VBox children:", $Unread_Messages/Unread_Vbox.get_child_count())
+	update_email_counters()
 
 
-	pass # Replace with function body.
-
-# Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta: float) -> void:
 	pass
-	
+
 func populate_unread_emails():
 	for email in emails:
 		if email.read == false:
-			var btn = Button.new()
-			btn.text = email.subject
-			btn.connect("pressed", Callable(self, "_on_email_selected").bind(email))
-			$Unread_Messages/Unread_Vbox.add_child(btn)
-	
-	
+			var email_container = VBoxContainer.new()
+
+			var sender_label = Label.new()
+			sender_label.text = email.sender
+			sender_label.add_theme_font_size_override("font_size", 14)
+			sender_label.add_theme_constant_override("margin_left", 10)
+			email_container.add_child(sender_label)
+
+			var subject_label = Label.new()
+			subject_label.text = email.subject
+			subject_label.add_theme_font_size_override("font_size", 10)
+			subject_label.add_theme_constant_override("margin_left", 10)
+			email_container.add_child(subject_label)
+
+			var panel = Panel.new()
+			panel.custom_minimum_size = Vector2(0, 50)
+			panel.connect("gui_input", Callable(self, "_on_email_click").bind(email))
+			panel.add_child(email_container)
+			panel.mouse_filter = Control.MOUSE_FILTER_STOP
+
+			$Unread_Messages/Unread_Vbox.add_child(panel)
+
 func _on_email_selected(email_data):
-	var full_text = "[b]From:[/b] %s\n[b]Subject:[/b] %s\n\n%s" % [
+	current_email = email_data
+	var full_text = "[color=black][b]From:[/b] %s\n[b]Subject:[/b] %s\n\n%s[/color]" % [
 		email_data.sender,
 		email_data.subject,
 		email_data.body
 	]
 	$Main_Message/Main_Area.bbcode_text = full_text
 
-	# Only move to Read_Vbox if not already read
 	if not email_data.read:
-		# Create new button in Read_Vbox
-		var read_btn = Button.new()
-		read_btn.text = email_data.subject
-		read_btn.connect("pressed", Callable(self, "_on_email_selected").bind(email_data))
-		$Read_Messages/Read_Vbox.add_child(read_btn)
+		var email_container = VBoxContainer.new()
 
-		# Remove the button from Unread_Vbox
+		var sender_margin = MarginContainer.new()
+		sender_margin.add_theme_constant_override("margin_left", 10)
+		var sender_label = Label.new()
+		sender_label.text = email_data.sender
+		sender_label.add_theme_font_size_override("font_size", 14)
+		sender_margin.add_child(sender_label)
+		email_container.add_child(sender_margin)
+
+		var subject_margin = MarginContainer.new()
+		subject_margin.add_theme_constant_override("margin_left", 10)
+		var subject_label = Label.new()
+		subject_label.text = email_data.subject
+		subject_label.add_theme_font_size_override("font_size", 10)
+		subject_margin.add_child(subject_label)
+		email_container.add_child(subject_margin)
+
+		var panel = Panel.new()
+		panel.custom_minimum_size = Vector2(0, 50)
+		panel.connect("gui_input", Callable(self, "_on_email_click").bind(email_data))
+		panel.add_child(email_container)
+		panel.mouse_filter = Control.MOUSE_FILTER_STOP
+
+		$Read_Messages/Read_Vbox.add_child(panel)
+
 		for child in $Unread_Messages/Unread_Vbox.get_children():
-			if child.text == email_data.subject:
-				child.queue_free()
-				break
+			if child.get_child_count() > 0:
+				var container = child.get_child(0)
+				if container is VBoxContainer and container.get_child_count() > 1:
+					var subject_check = container.get_child(1)
+					if subject_check is Label and subject_check.text == email_data.subject:
+						child.queue_free()
+						break
 
-		# Mark email as read
 		email_data.read = true
+		update_email_counters()
+
+func _on_email_click(event: InputEvent, email_data):
+	if event is InputEventMouseButton and event.pressed:
+		_on_email_selected(email_data)
+
+func update_email_counters():
+	var inbox_count = 0
+	var sent_count = 0
+
+	for email in emails:
+		if email.get("answered", false):
+			sent_count += 1
+		else:
+			inbox_count += 1
+
+	$Side_Panel/Inbox_Number.text = str(inbox_count)
+	$Side_Panel/Sent_Items_Number.text = str(sent_count)
 
 
 
-	
+func _on_submit_button_pressed() -> void:
+	$Response.visible = false
+	$Answer.visible = false
+
+	if current_email and not current_email["answered"]:
+
+		current_email.answered = true
+
+
+		var unread_box = $Unread_Messages/Unread_Vbox
+		var read_box = $Read_Messages/Read_Vbox
+
+		for box in [unread_box, read_box]:
+			for child in box.get_children():
+				if child.get_child_count() > 0:
+					var container = child.get_child(0)
+					if container is VBoxContainer and container.get_child_count() > 1:
+						var subject_check = container.get_child(1)
+						if subject_check is MarginContainer and subject_check.get_child_count() > 0:
+							var subject_check_label = subject_check.get_child(0)
+							if subject_check_label is Label and subject_check_label.text == current_email.subject:
+								child.queue_free()
+								break
+
+		var email_container = VBoxContainer.new()
+
+		var sender_margin = MarginContainer.new()
+		sender_margin.add_theme_constant_override("margin_left", 10)
+		var sender_label = Label.new()
+		sender_label.text = current_email.sender
+		sender_label.add_theme_font_size_override("font_size", 14)
+		sender_margin.add_child(sender_label)
+		email_container.add_child(sender_margin)
+
+		var subject_margin = MarginContainer.new()
+		subject_margin.add_theme_constant_override("margin_left", 10)
+		var subject_label = Label.new()
+		subject_label.text = current_email.subject
+		subject_label.add_theme_font_size_override("font_size", 10)
+		subject_margin.add_child(subject_label)
+		email_container.add_child(subject_margin)
+
+		var panel = Panel.new()
+		panel.custom_minimum_size = Vector2(0, 50)
+		panel.add_child(email_container)
+		panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
+
+		$Sent_Items/Sent_Vbox.add_child(panel)
+
+		update_email_counters()
+
+
 func _on_exit_button_pressed() -> void:
 	get_tree().quit()
-	pass # Replace with function body.
-
 
 func _on_read_unread_toggled(toggled_on: bool) -> void:
-	if toggled_on:
-		$Read_Messages.visible = true
-		$Unread_Messages.visible = false
-	else:
-		$Read_Messages.visible = false
-		$Unread_Messages.visible = true
-		
-	pass # Replace with function body.
-
+	$Read_Messages.visible = toggled_on
+	$Unread_Messages.visible = not toggled_on
 
 func _on_reply_pressed() -> void:
 	$Response.visible = true
-	pass # Replace with function body.
-
 
 func _on_close_button_pressed() -> void:
 	$Response.visible = false
 	$Answer.visible = false
-	pass # Replace with function body.
-
 
 func _on_sent_items_button_pressed() -> void:
 	$Sent_Items.visible = true
 	$Unread_Messages.visible = false
 	$Read_Messages.visible = false
 	$Read_Unread.visible = false
-	pass # Replace with function body.
-
 
 func _on_inbox_button_pressed() -> void:
 	$Unread_Messages.visible = true
 	$Read_Messages.visible = false
 	$Read_Unread.visible  = true
 	$Sent_Items.visible = false
-	pass # Replace with function body.
-
 
 func _on_company_info_button_pressed() -> void:
 	$Company_Info.visible = true
-	pass # Replace with function body.
-
-
 
 func _on_x_button_pressed() -> void:
 	$Company_Info.visible = false
-	pass # Replace with function body.
-	
 
 func _on_x_button_2_pressed() -> void:
 	$Your_Role.visible = false
-	pass # Replace with function body.
-
 
 func _on_your_role_button_pressed() -> void:
 	$Your_Role.visible = true
-	pass # Replace with function body.
-
-
-func _on_submit_button_pressed() -> void: #Put info here for submission of answer into attributes calculation
-	$Response.visible = false
-	#emails.read = true
-	pass # Replace with function body.
