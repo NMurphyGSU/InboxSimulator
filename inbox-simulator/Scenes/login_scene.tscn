@@ -1,13 +1,13 @@
-[gd_scene load_steps=2 format=3 uid="uid://b8buoh1os3sjj"]
+[gd_scene load_steps=3 format=3 uid="uid://b8buoh1os3sjj"]
 
-[ext_resource type="Script" path="res://Account_Creation_And_Access.gd" id="1_5j6st"]
+[ext_resource type="Script" path="res://Scripts/login.gd" id="1_a1jlg"]
+[ext_resource type="PackedScene" uid="uid://bv7o7amfbnwni" path="res://Scenes/self_assessment_scene.tscn" id="2_m1bmj"]
 
 [node name="LoginScene" type="Node"]
-script = ExtResource("1_5j6st")
 
 [node name="CanvasLayer" type="CanvasLayer" parent="."]
 
-[node name="Control" type="Control" parent="CanvasLayer"]
+[node name="Control" type="Control" parent="CanvasLayer" node_paths=PackedStringArray("username_input", "password_input", "username_error_label", "password_error_label", "account_message_label", "login_button", "create_button")]
 layout_mode = 3
 anchors_preset = 0
 offset_left = 1.0
@@ -15,8 +15,18 @@ offset_top = 1.0
 offset_right = 1281.0
 offset_bottom = 721.0
 pivot_offset = Vector2(640, 360)
+script = ExtResource("1_a1jlg")
+username_input = NodePath("VBoxContainer_Input/LineEdit_Username")
+password_input = NodePath("VBoxContainer_Input/LineEdit_Password")
+username_error_label = NodePath("VBoxContainer_Input/Label_error_Username")
+password_error_label = NodePath("VBoxContainer_Input/Label_error_Password")
+account_message_label = NodePath("Label_error_Account")
+login_button = NodePath("Button_Login")
+create_button = NodePath("Button_CreateAccount")
+next_scene = ExtResource("2_m1bmj")
 
 [node name="Panel_Background" type="Panel" parent="CanvasLayer/Control"]
+layout_mode = 0
 offset_right = 1280.0
 offset_bottom = 720.0
 pivot_offset = Vector2(640, 360)
@@ -43,12 +53,25 @@ text = "USERNAME:"
 [node name="LineEdit_Username" type="LineEdit" parent="CanvasLayer/Control/VBoxContainer_Input"]
 layout_mode = 2
 
+[node name="Label_error_Username" type="Label" parent="CanvasLayer/Control/VBoxContainer_Input"]
+layout_mode = 2
+
 [node name="Label_Password" type="Label" parent="CanvasLayer/Control/VBoxContainer_Input"]
 layout_mode = 2
 text = "PASSWORD:"
 
 [node name="LineEdit_Password" type="LineEdit" parent="CanvasLayer/Control/VBoxContainer_Input"]
 layout_mode = 2
+
+[node name="Label_error_Password" type="Label" parent="CanvasLayer/Control/VBoxContainer_Input"]
+layout_mode = 2
+
+[node name="Label_error_Account" type="Label" parent="CanvasLayer/Control"]
+layout_mode = 2
+offset_left = 390.0
+offset_top = 503.0
+offset_right = 890.0
+offset_bottom = 526.0
 
 [node name="Button_Login" type="Button" parent="CanvasLayer/Control"]
 layout_mode = 1
