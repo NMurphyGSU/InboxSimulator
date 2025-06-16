@@ -111,6 +111,7 @@ theme_override_styles/normal = SubResource("StyleBoxEmpty_6j52u")
 text = "0"
 
 [node name="Toggle" type="CheckButton" parent="Scene_Layout"]
+visible = false
 layout_mode = 0
 offset_left = 970.0
 offset_top = 47.0
@@ -404,6 +405,7 @@ theme_override_colors/default_color = Color(0, 0, 0, 1)
 bbcode_enabled = true
 
 [node name="Response" type="Panel" parent="."]
+visible = false
 offset_left = 641.0
 offset_top = 205.0
 offset_right = 1186.0
@@ -512,6 +514,7 @@ offset_bottom = 368.0
 text = "Submit"
 
 [node name="Answer" type="Panel" parent="."]
+visible = false
 offset_left = 640.0
 offset_top = 244.0
 offset_right = 1185.0
@@ -628,6 +631,7 @@ theme_override_styles/normal = SubResource("StyleBoxEmpty_4bcak")
 text = "X"
 
 [node name="Sent_Items" type="Panel" parent="."]
+visible = false
 offset_left = 233.0
 offset_top = 110.0
 offset_right = 536.0
@@ -649,10 +653,10 @@ offset_right = 297.0
 offset_bottom = 588.0
 
 [node name="Company_Info" type="ColorRect" parent="."]
-offset_left = 233.0
-offset_top = 109.0
-offset_right = 1269.0
-offset_bottom = 706.0
+offset_left = 240.0
+offset_top = 117.0
+offset_right = 1254.0
+offset_bottom = 699.0
 
 [node name="Company_Heading" type="Label" parent="Company_Info"]
 layout_mode = 0
@@ -676,13 +680,14 @@ flat = true
 
 [node name="Company_Info_Message" type="RichTextLabel" parent="Company_Info"]
 layout_mode = 0
-offset_left = 77.0
-offset_top = 144.0
-offset_right = 981.0
-offset_bottom = 453.0
+offset_left = 38.0
+offset_top = 82.0
+offset_right = 994.0
+offset_bottom = 576.0
 text = "Placeholder"
 
 [node name="Your_Role" type="ColorRect" parent="."]
+visible = false
 offset_left = 240.0
 offset_top = 117.0
 offset_right = 1254.0
@@ -710,10 +715,10 @@ text = "Your Role"
 
 [node name="Your_Role_Message" type="RichTextLabel" parent="Your_Role"]
 layout_mode = 0
-offset_left = 70.0
-offset_top = 147.0
-offset_right = 974.0
-offset_bottom = 456.0
+offset_left = 51.0
+offset_top = 78.0
+offset_right = 959.0
+offset_bottom = 563.0
 
 [connection signal="pressed" from="Exit_Button" to="." method="_on_exit_button_pressed"]
 [connection signal="pressed" from="Side_Panel/Inbox_Button" to="." method="_on_inbox_button_pressed"]
