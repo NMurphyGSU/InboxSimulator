@@ -1,8 +1,19 @@
 extends Node2D
 
+#Dummy copy for testing------------------------------------------
 var json_path = "res://emails.json"
 var companyinfo_path = "res://companyinf.json"
 var yourrole_path = "res://yourrole.json"
+#----------------------------------------------------------------
+
+#Sample data for functionality-----------------------------------
+var dialogue_path = "res://sample-data/dialog-tree.json"
+var questions_path = "res://sample-data/questions.json"
+var scenario_path = "res://sample-data/scenario.json"
+var senders_path = "res://sample-data/senders.json"
+#----------------------------------------------------------------
+
+
 var emails: Array = []
 var current_email = null
 var companyinfo = ""
@@ -17,7 +28,9 @@ func _ready():
 	$Company_Info.visible = false
 	$Your_Role.visible = false
 
-	var file = FileAccess.open(json_path, FileAccess.READ)
+
+#-----Testing---------------------------------------------------------------------------------------
+	var file = FileAccess.open(json_path, FileAccess.READ) #Dummy email file
 	assert(file.file_exists(json_path), "File path does not exist")
 
 	var json = file.get_as_text()
@@ -27,17 +40,18 @@ func _ready():
 	populate_unread_emails()
 	update_email_counters()
 
-	var info = FileAccess.open(companyinfo_path, FileAccess.READ)
+	var info = FileAccess.open(companyinfo_path, FileAccess.READ) #Dummy company info file 
 	assert(info.file_exists(companyinfo_path), "File path does not exist")
 
 	companyinfo = info.get_as_text()
 	populate_company_info()
 	
-	var yourrole = FileAccess.open(yourrole_path, FileAccess.READ)
+	var yourrole = FileAccess.open(yourrole_path, FileAccess.READ) #Dummy your role file
 	assert(yourrole.file_exists(yourrole_path), "File path does not exist")
 	
 	role = yourrole.get_as_text()
 	populate_yourrole()
+#---------------------------------------------------------------------------------------------------
 
 func _process(delta: float) -> void:
 	pass
