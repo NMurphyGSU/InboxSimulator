@@ -1,23 +1,56 @@
 extends Node2D
 
-#Dummy copy for testing------------------------------------------
-var json_path = "res://emails.json"
+#-----Dummy copy for testing-------------------------------------
+#var json_path = "res://emails.json"
 var companyinfo_path = "res://companyinf.json"
 var yourrole_path = "res://yourrole.json"
-#----------------------------------------------------------------
 
-#Sample data for functionality-----------------------------------
-var dialogue_path = "res://sample-data/dialog-tree.json"
-var questions_path = "res://sample-data/questions.json"
-var scenario_path = "res://sample-data/scenario.json"
-var senders_path = "res://sample-data/senders.json"
-#----------------------------------------------------------------
-
-
-var emails: Array = []
-var current_email = null
+#var emails: Array = []
+#var current_email = null
 var companyinfo = ""
 var role = ""
+#----------------------------------------------------------------
+
+#-----Sample data for functionality------------------------------
+var dialogue_path = "res://sample-data/dialog-tree.json"
+
+var trees
+var branches
+var from = null
+var to = null
+
+var questions_path = "res://sample-data/questions.json"
+
+var emails: Array = []
+var email
+var current_email = null
+var scenario_id = null
+var questions
+var id
+var sender_id = null
+var subject = ""
+var question = ""
+var randomize_answers = true
+var answers
+var text = ""
+var criteria = ""
+
+var scenario_path = "res://sample-data/scenario.json"
+
+var scenario
+var scenario_name  = ""
+var show_end_results = true
+
+var senders_path = "res://sample-data/senders.json"
+
+var senders = []
+var sender_name: Label
+var title = ""
+var color #Not sure how to type this, it is both string and int. Will research ***************************************
+var sender_lookup = {}
+
+#----------------------------------------------------------------
+
 
 func _ready():
 	$Read_Messages.visible = false
@@ -30,15 +63,15 @@ func _ready():
 
 
 #-----Testing---------------------------------------------------------------------------------------
-	var file = FileAccess.open(json_path, FileAccess.READ) #Dummy email file
-	assert(file.file_exists(json_path), "File path does not exist")
+	#var file = FileAccess.open(json_path, FileAccess.READ) #Dummy email file
+	#assert(file.file_exists(json_path), "File path does not exist")
 
-	var json = file.get_as_text()
-	var json_object = JSON.new()
-	json_object.parse(json)
-	emails = json_object.data
-	populate_unread_emails()
-	update_email_counters()
+	#var json = file.get_as_text()
+	#var json_object = JSON.new()
+	#json_object.parse(json)
+	#emails = json_object.data
+	#populate_unread_emails()
+	#update_email_counters()
 
 	var info = FileAccess.open(companyinfo_path, FileAccess.READ) #Dummy company info file 
 	assert(info.file_exists(companyinfo_path), "File path does not exist")
@@ -51,6 +84,49 @@ func _ready():
 	
 	role = yourrole.get_as_text()
 	populate_yourrole()
+#---------------------------------------------------------------------------------------------------
+
+
+#-----Sample Data-----------------------------------------------------------------------------------
+	
+	#questions file
+	var questions_file = FileAccess.open(questions_path, FileAccess.READ) #Questions.json
+	assert(questions_file.file_exists(questions_path), "File path does not exist")
+	var quest = questions_file.get_as_text()
+	var quest_object = JSON.new()
+	quest_object.parse(quest)
+	emails = quest_object.data["questions"] #<--will likely need
+	for email in emails:
+		email["read"] = false
+	populate_unread_emails()
+	update_email_counters()
+
+	#dialogue-tree file
+	var dialogue_file = FileAccess.open(dialogue_path, FileAccess.READ) #dialogue-tree.json
+	assert(dialogue_file.file_exists(dialogue_path), "File path does not exist")
+	var dialogue = dialogue_file.get_as_text()
+	var dialogue_object = JSON.new()
+	dialogue_object.parse(dialogue)
+	
+	#scenario file
+	var scenario_file = FileAccess.open(scenario_path, FileAccess.READ) #Scenario.json
+	assert(scenario_file.file_exists(scenario_path), "File path does not exist")
+	var scen = scenario_file.get_as_text()
+	var scen_object = JSON.new()
+	scen_object.parse(scen)
+	
+	#senders file
+	var senders_file = FileAccess.open(senders_path, FileAccess.READ) #Senders.json
+	assert(senders_file.file_exists(senders_path), "File path does not exist")
+	var send = senders_file.get_as_text()
+	var senders_object = JSON.new()
+	senders_object.parse(send)
+	#print(typeof(senders_object.data))  # Will tell you if it’s a Dictionary, Array, etc.
+	#print(senders_object.data)          
+
+	for sender in senders_object.data["senders"]:
+		sender_lookup[sender["id"]] = sender["name"]
+
 #---------------------------------------------------------------------------------------------------
 
 func _process(delta: float) -> void:
@@ -74,78 +150,95 @@ func populate_yourrole():
 	else:
 		label.append_text("[i][color=gray]No company info available.[/color][/i]")		
 	
+func get_sender_name(sender_id: int) -> String:
+	var email
+	return sender_lookup.get(sender_id, "Unknown Sender")
+	sender_name.text = get_sender_name(email["sender_id"])
+
 func populate_unread_emails(): #the initial population of the emails into the game
+	#pass
+	
+	
+#-----Testing---------------------------------------------------------------------------------------	
 	for email in emails:
-		if email.read == false:
-			var email_container = VBoxContainer.new()
+		if !email.has("read"):
+			email["read"] = false
+	
+	var email_container = VBoxContainer.new()
 
-			var sender_label = Label.new()
-			sender_label.text = email.sender
-			sender_label.add_theme_font_size_override("font_size", 14)
-			sender_label.add_theme_constant_override("margin_left", 10)
-			email_container.add_child(sender_label)
+	var sender_name = Label.new()
+	sender_name.text = sender_lookup.get(email["sender_id"], "Unknown Sender") 
+	print(sender_name.text)  
+	sender_name.add_theme_font_size_override("font_size", 14)
+	sender_name.add_theme_constant_override("margin_left", 10)
+	email_container.add_child(sender_name)
 
-			var subject_label = Label.new()
-			subject_label.text = email.subject
-			subject_label.add_theme_font_size_override("font_size", 10)
-			subject_label.add_theme_constant_override("margin_left", 10)
-			email_container.add_child(subject_label)
+	var subject_label = Label.new()
+	subject_label.text = email.subject
+	subject_label.add_theme_font_size_override("font_size", 10)
+	subject_label.add_theme_constant_override("margin_left", 10)
+	email_container.add_child(subject_label)
 
-			var panel = Panel.new()
-			panel.custom_minimum_size = Vector2(0, 50)
-			panel.connect("gui_input", Callable(self, "_on_email_click").bind(email))
-			panel.add_child(email_container)
-			panel.mouse_filter = Control.MOUSE_FILTER_STOP
+	var panel = Panel.new()
+	panel.custom_minimum_size = Vector2(0, 50)
+	panel.connect("gui_input", Callable(self, "_on_email_click").bind(email))
+	panel.add_child(email_container)
+	panel.mouse_filter = Control.MOUSE_FILTER_STOP
 
-			$Unread_Messages/Unread_Vbox.add_child(panel)
+	$Unread_Messages/Unread_Vbox.add_child(panel)
+#---------------------------------------------------------------------------------------------------
+
+
 
 func _on_email_selected(email_data): #when an email is selected
-	current_email = email_data
-	var full_text = "[color=black][b]From:[/b] %s\n[b]Subject:[/b] %s\n\n%s[/color]" % [
-		email_data.sender,
-		email_data.subject,
-		email_data.body
-	]
-	$Main_Message/Main_Area.bbcode_text = full_text
+	#pass
+#-----Testing---------------------------------------------------------------------------------------	
+	#current_email = email_data
+	#var full_text = "[color=black][b]From:[/b] %s\n[b]Subject:[/b] %s\n\n%s[/color]" % [
+	#	email_data.sender,
+	#	email_data.subject,
+	#	email_data.body
+	#]
+	#$Main_Message/Main_Area.bbcode_text = full_text
 
-	if not email_data.read:
-		var email_container = VBoxContainer.new()
+	#if not email_data.read:
+	#	var email_container = VBoxContainer.new()
 
-		var sender_margin = MarginContainer.new()
-		sender_margin.add_theme_constant_override("margin_left", 10)
-		var sender_label = Label.new()
-		sender_label.text = current_email.sender
-		sender_label.add_theme_font_size_override("font_size", 14)
-		sender_margin.add_child(sender_label)
-		email_container.add_child(sender_margin)
+	#	var sender_margin = MarginContainer.new()
+	#	sender_margin.add_theme_constant_override("margin_left", 10)
+	#	var sender_label = Label.new()
+	#	sender_label.text = current_email.sender
+	#	sender_label.add_theme_font_size_override("font_size", 14)
+	#	sender_margin.add_child(sender_label)
+	#	email_container.add_child(sender_margin)
 
-		var subject_margin = MarginContainer.new()
-		subject_margin.add_theme_constant_override("margin_left", 10)
-		var subject_label = Label.new()
-		subject_label.text = current_email.subject
-		subject_label.add_theme_font_size_override("font_size", 10)
-		subject_margin.add_child(subject_label)
-		email_container.add_child(subject_margin)
+	#	var subject_margin = MarginContainer.new()
+	#	subject_margin.add_theme_constant_override("margin_left", 10)
+	#	var subject_label = Label.new()
+	#	subject_label.text = current_email.subject
+	#	subject_label.add_theme_font_size_override("font_size", 10)
+	#	subject_margin.add_child(subject_label)
+	#	email_container.add_child(subject_margin)
 
-		var panel = Panel.new()
-		panel.custom_minimum_size = Vector2(0, 50)
-		panel.connect("gui_input", Callable(self, "_on_email_click").bind(email_data))
-		panel.add_child(email_container)
-		panel.mouse_filter = Control.MOUSE_FILTER_STOP
+	#	var panel = Panel.new()
+	#	panel.custom_minimum_size = Vector2(0, 50)
+	#	panel.connect("gui_input", Callable(self, "_on_email_click").bind(email_data))
+	#	panel.add_child(email_container)
+	#	panel.mouse_filter = Control.MOUSE_FILTER_STOP
 
-		$Read_Messages/Read_Vbox.add_child(panel)
+	#	$Read_Messages/Read_Vbox.add_child(panel)
 
-		for child in $Unread_Messages/Unread_Vbox.get_children():
-			if child.get_child_count() > 0:
-				var container = child.get_child(0)
-				if container is VBoxContainer and container.get_child_count() > 1:
-					var subject_check = container.get_child(1)
-					if subject_check is Label and subject_check.text == email_data.subject:
-						child.queue_free()
-						break
+	#	for child in $Unread_Messages/Unread_Vbox.get_children():
+	#		if child.get_child_count() > 0:
+	#			var container = child.get_child(0)
+	#			if container is VBoxContainer and container.get_child_count() > 1:
+	#				var subject_check = container.get_child(1)
+	#				if subject_check is Label and subject_check.text == email_data.subject:
+	#					child.queue_free()
+	#					break
 
 		email_data.read = true
-		update_email_counters()
+	#	update_email_counters()
 
 func _on_email_click(event: InputEvent, email_data): #when the user clicks the emails
 	if event is InputEventMouseButton and event.pressed:
@@ -155,11 +248,14 @@ func update_email_counters(): #handles the counters on the side panel
 	var inbox_count = 0
 	var sent_count = 0
 
+
+#Keep this--------------------
 	for email in emails:
 		if email.get("answered", false):
 			sent_count += 1
 		else:
 			inbox_count += 1
+#-----------------------------
 
 	$Side_Panel/Inbox_Number.text = str(inbox_count)
 	$Side_Panel/Sent_Items_Number.text = str(sent_count)
@@ -170,52 +266,52 @@ func _on_submit_button_pressed() -> void: #handles what happens when the user an
 	$Response.visible = false
 	$Answer.visible = false
 
-	if current_email and not current_email["answered"]:
+	#if current_email and not current_email["answered"]:
 
-		current_email.answered = true
+	#	current_email.answered = true
 
 
-		var unread_box = $Unread_Messages/Unread_Vbox
-		var read_box = $Read_Messages/Read_Vbox
+	#	var unread_box = $Unread_Messages/Unread_Vbox
+	#	var read_box = $Read_Messages/Read_Vbox
 
-		for box in [unread_box, read_box]:
-			for child in box.get_children():
-				if child.get_child_count() > 0:
-					var container = child.get_child(0)
-					if container is VBoxContainer and container.get_child_count() > 1:
-						var subject_check = container.get_child(1)
-						if subject_check is MarginContainer and subject_check.get_child_count() > 0:
-							var subject_check_label = subject_check.get_child(0)
-							if subject_check_label is Label and subject_check_label.text == current_email.subject:
-								child.queue_free()
-								break
+	#	for box in [unread_box, read_box]:
+	#		for child in box.get_children():
+	#			if child.get_child_count() > 0:
+	#				var container = child.get_child(0)
+	#				if container is VBoxContainer and container.get_child_count() > 1:
+	#					var subject_check = container.get_child(1)
+	#					if subject_check is MarginContainer and subject_check.get_child_count() > 0:
+	#						var subject_check_label = subject_check.get_child(0)
+	#						if subject_check_label is Label and subject_check_label.text == current_email.subject:
+	#							child.queue_free()
+	#							break
 
-		var email_container = VBoxContainer.new()
+	#	var email_container = VBoxContainer.new()
 
-		var sender_margin = MarginContainer.new()
-		sender_margin.add_theme_constant_override("margin_left", 10)
-		var sender_label = Label.new()
-		sender_label.text = current_email.sender
-		sender_label.add_theme_font_size_override("font_size", 14)
-		sender_margin.add_child(sender_label)
-		email_container.add_child(sender_margin)
+	#	var sender_margin = MarginContainer.new()
+	#	sender_margin.add_theme_constant_override("margin_left", 10)
+	#	var sender_label = Label.new()
+	#	sender_label.text = current_email.sender
+	#	sender_label.add_theme_font_size_override("font_size", 14)
+	#	sender_margin.add_child(sender_label)
+	#	email_container.add_child(sender_margin)
 
-		var subject_margin = MarginContainer.new()
-		subject_margin.add_theme_constant_override("margin_left", 10)
-		var subject_label = Label.new()
-		subject_label.text = current_email.subject
-		subject_label.add_theme_font_size_override("font_size", 10)
-		subject_margin.add_child(subject_label)
-		email_container.add_child(subject_margin)
+	#	var subject_margin = MarginContainer.new()
+	#	subject_margin.add_theme_constant_override("margin_left", 10)
+	#	var subject_label = Label.new()
+	#	subject_label.text = current_email.subject
+	#	subject_label.add_theme_font_size_override("font_size", 10)
+	#	subject_margin.add_child(subject_label)
+	#	email_container.add_child(subject_margin)
 
-		var panel = Panel.new()
-		panel.custom_minimum_size = Vector2(0, 50)
-		panel.add_child(email_container)
-		panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	#	var panel = Panel.new()
+	#	panel.custom_minimum_size = Vector2(0, 50)
+	#	panel.add_child(email_container)
+	#	panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
 
-		$Sent_Items/Sent_Vbox.add_child(panel)
+	#	$Sent_Items/Sent_Vbox.add_child(panel)
 
-		update_email_counters()
+	#	update_email_counters()
 
 
 func _on_exit_button_pressed() -> void: #button to quit the game
