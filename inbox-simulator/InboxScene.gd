@@ -2,8 +2,8 @@ extends Node2D
 
 #-----Dummy copy for testing-------------------------------------
 #var json_path = "res://emails.json"
-var companyinfo_path = "res://companyinf.json"
-var yourrole_path = "res://yourrole.json"
+var companyinfo_path = "res://companyinf.json" #keep this for now
+var yourrole_path = "res://yourrole.json" #keep this for now
 
 #var emails: Array = []
 #var current_email = null
@@ -12,22 +12,20 @@ var role = ""
 #----------------------------------------------------------------
 
 #-----Sample data for functionality------------------------------
-var dialogue_path = "res://sample-data/dialog-tree.json"
-
+var dialogue_path = "res://sample-data/dialog-tree.json" #dialogue tree JSON file
 var trees
 var branches
 var from = null
 var to = null
 
-var questions_path = "res://sample-data/questions.json"
-
+var questions_path = "res://sample-data/questions.json" #questions JSON file
 var emails: Array = []
 var email
 var current_email = null
-var scenario_id = null
+var scenario_id
 var questions
 var id
-var sender_id = null
+var sender_id
 var subject = ""
 var question = ""
 var randomize_answers = true
@@ -35,22 +33,19 @@ var answers
 var text = ""
 var criteria = ""
 
-var scenario_path = "res://sample-data/scenario.json"
-
-var scenario
+var scenario_path = "res://sample-data/scenario.json" #scenario JSON file
+var scenario: Array = [] #criteria in dictionary
 var scenario_name  = ""
-var show_end_results = true
+var show_end_results = true #Will allow students to see or not to see results
 
-var senders_path = "res://sample-data/senders.json"
-
+var senders_path = "res://sample-data/senders.json" #senders JSON file
 var senders = []
-var sender_name: Label
+var sender_name
 var title = ""
-var color #Not sure how to type this, it is both string and int. Will research ***************************************
+var color #This should be a circle in this color next to the sender's name- save as an array and then select the color from there
 var sender_lookup = {}
 
-#----------------------------------------------------------------
-
+#---------------------------------------------------------------------------------------------------
 
 func _ready():
 	$Read_Messages.visible = false
@@ -65,7 +60,6 @@ func _ready():
 #-----Testing---------------------------------------------------------------------------------------
 	#var file = FileAccess.open(json_path, FileAccess.READ) #Dummy email file
 	#assert(file.file_exists(json_path), "File path does not exist")
-
 	#var json = file.get_as_text()
 	#var json_object = JSON.new()
 	#json_object.parse(json)
@@ -75,13 +69,11 @@ func _ready():
 
 	var info = FileAccess.open(companyinfo_path, FileAccess.READ) #Dummy company info file 
 	assert(info.file_exists(companyinfo_path), "File path does not exist")
-
 	companyinfo = info.get_as_text()
 	populate_company_info()
 	
 	var yourrole = FileAccess.open(yourrole_path, FileAccess.READ) #Dummy your role file
 	assert(yourrole.file_exists(yourrole_path), "File path does not exist")
-	
 	role = yourrole.get_as_text()
 	populate_yourrole()
 #---------------------------------------------------------------------------------------------------
@@ -96,10 +88,21 @@ func _ready():
 	var quest_object = JSON.new()
 	quest_object.parse(quest)
 	emails = quest_object.data["questions"] #<--will likely need
+	
+	#debug because nothing wants to work (working now)
+	#for i in emails.size():
+		#var e = emails[i]
+		#print("email at index %d:" % i, e)
+		#print("emailonready")
+		#print("has sender_id:", e.has("sender_id"))
+		#print("value of sender_id:", e.get("sender_id", "MISSING"))
+
 	for email in emails:
 		email["read"] = false
-	populate_unread_emails()
-	update_email_counters()
+		#print(email)
+		#print(typeof(email))
+
+	
 
 	#dialogue-tree file
 	var dialogue_file = FileAccess.open(dialogue_path, FileAccess.READ) #dialogue-tree.json
@@ -121,15 +124,19 @@ func _ready():
 	var send = senders_file.get_as_text()
 	var senders_object = JSON.new()
 	senders_object.parse(send)
-	#print(typeof(senders_object.data))  # Will tell you if it’s a Dictionary, Array, etc.
-	#print(senders_object.data)          
+	print(typeof(senders_object.data))  
+	print(senders_object.data)          
 
 	for sender in senders_object.data["senders"]:
-		sender_lookup[sender["id"]] = sender["name"]
-
+		sender_lookup[sender["id"]] = sender["name"] #key value pairs
+		
+	print("sender_lookup populated with:", sender_lookup) #this is correct
+	
+	populate_unread_emails() 
+	update_email_counters() #this works yay!
 #---------------------------------------------------------------------------------------------------
 
-func _process(delta: float) -> void:
+func _process(_delta: float) -> void:
 	pass
 
 func populate_company_info():
@@ -140,7 +147,7 @@ func populate_company_info():
 		label.append_text("[color=#4EC1E0]%s[/color]" % companyinfo)
 	else:
 		label.append_text("[i][color=gray]No company info available.[/color][/i]")
-		
+
 func populate_yourrole():
 	var label = $Your_Role/Your_Role_Message
 	label.clear()
@@ -149,49 +156,58 @@ func populate_yourrole():
 		label.append_text("[color=#4EC1E0]%s[/color]" % role)
 	else:
 		label.append_text("[i][color=gray]No company info available.[/color][/i]")		
-	
-func get_sender_name(sender_id: int) -> String:
-	var email
+
+func get_sender_name(sid: int) -> String:
+	#var email
+	print("get_sender_name method accessed")
+	if sender_id == null:
+		print("sender_id null")
+	else: 
+		print("sender_id still good")
+	 
 	return sender_lookup.get(sender_id, "Unknown Sender")
-	sender_name.text = get_sender_name(email["sender_id"])
-
-func populate_unread_emails(): #the initial population of the emails into the game
-	#pass
 	
-	
-#-----Testing---------------------------------------------------------------------------------------	
-	for email in emails:
-		if !email.has("read"):
-			email["read"] = false
-	
+		
+func populate_unread_emails(): # I think this is close, but nothing is displaying correctly in the vbox. Also sender names still not populating. 
+	 
 	var email_container = VBoxContainer.new()
+	
+	for email in emails: #for each email that is inside of the emails array (runs for each email)
+		if email == null: #if that email is null then
+			print("email is null") #tell me that email is null
+			continue
+		if !email.has("sender_id") or !email.has("subject"): #if that same email does not have a sender id or it does not have a subject
+			print("email missing required fields:", email) #tell me the missing pieces
+			continue
 
-	var sender_name = Label.new()
-	sender_name.text = sender_lookup.get(email["sender_id"], "Unknown Sender") 
-	print(sender_name.text)  
-	sender_name.add_theme_font_size_override("font_size", 14)
-	sender_name.add_theme_constant_override("margin_left", 10)
-	email_container.add_child(sender_name)
+		var sid = email["sender_id"] #assigns the sender id of that email to sid
+		var subject = email["subject"] #assigns the subject of the email to the subject variable
 
-	var subject_label = Label.new()
-	subject_label.text = email.subject
-	subject_label.add_theme_font_size_override("font_size", 10)
-	subject_label.add_theme_constant_override("margin_left", 10)
-	email_container.add_child(subject_label)
+		var sender_label = Label.new() #Create a label for the vbox for the Sender
+		sender_label.text = get_sender_name(sid) #populate it ***I think this line is the issue?***
+		sender_label.add_theme_font_size_override("font_size", 14) #formatting
+		sender_label.add_theme_constant_override("margin_left", 10) #formatting
+		email_container.add_child(sender_label) #adds the sender info the the email
+		
+		var subject_label = Label.new() #creates a new label called subject_name
+		subject_label.text = subject #populates the text from the subject_label with the subject 
+		subject_label.add_theme_font_size_override("font_size", 10)#formatting
+		subject_label.add_theme_constant_override("margin_left", 10)#formatting
+		email_container.add_child(subject_label) #adds the subject to the email
 
-	var panel = Panel.new()
-	panel.custom_minimum_size = Vector2(0, 50)
-	panel.connect("gui_input", Callable(self, "_on_email_click").bind(email))
-	panel.add_child(email_container)
-	panel.mouse_filter = Control.MOUSE_FILTER_STOP
-
-	$Unread_Messages/Unread_Vbox.add_child(panel)
+		var panel = Panel.new()
+		panel.custom_minimum_size = Vector2(0, 50)
+		panel.connect("gui_input", Callable(self, "_on_email_click").bind(email))
+		panel.add_child(email_container)
+		panel.mouse_filter = Control.MOUSE_FILTER_STOP
+		$Unread_Messages/Unread_Vbox.add_child(panel) #Places the panels behind the individual emails. But only the first one?? The rest are on top. 
+		
 #---------------------------------------------------------------------------------------------------
 
 
 
 func _on_email_selected(email_data): #when an email is selected
-	#pass
+	pass
 #-----Testing---------------------------------------------------------------------------------------	
 	#current_email = email_data
 	#var full_text = "[color=black][b]From:[/b] %s\n[b]Subject:[/b] %s\n\n%s[/color]" % [
@@ -237,7 +253,7 @@ func _on_email_selected(email_data): #when an email is selected
 	#					child.queue_free()
 	#					break
 
-		email_data.read = true
+		#email_data.read = true
 	#	update_email_counters()
 
 func _on_email_click(event: InputEvent, email_data): #when the user clicks the emails
@@ -260,7 +276,7 @@ func update_email_counters(): #handles the counters on the side panel
 	$Side_Panel/Inbox_Number.text = str(inbox_count)
 	$Side_Panel/Sent_Items_Number.text = str(sent_count)
 
-
+#-----Handles panel switching between objects in the game-------------------------------------------
 
 func _on_submit_button_pressed() -> void: #handles what happens when the user answers the emails **probably put attribute info here**
 	$Response.visible = false
@@ -312,7 +328,6 @@ func _on_submit_button_pressed() -> void: #handles what happens when the user an
 	#	$Sent_Items/Sent_Vbox.add_child(panel)
 
 	#	update_email_counters()
-
 
 func _on_exit_button_pressed() -> void: #button to quit the game
 	get_tree().quit()

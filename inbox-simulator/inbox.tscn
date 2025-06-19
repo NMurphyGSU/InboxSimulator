@@ -653,6 +653,7 @@ offset_right = 297.0
 offset_bottom = 588.0
 
 [node name="Company_Info" type="ColorRect" parent="."]
+visible = false
 offset_left = 240.0
 offset_top = 117.0
 offset_right = 1254.0
