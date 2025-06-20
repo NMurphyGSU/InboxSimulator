@@ -306,7 +306,7 @@ func _on_submit_button_pressed() -> void: #handles what happens when the user an
 	$Response.visible = false
 	$Answer.visible = false
 	
-	current_email = email
+	#current_email = email
 	if current_email and not current_email.get("answered", false):
 		current_email["answered"] = true
 	
@@ -332,23 +332,23 @@ func _on_submit_button_pressed() -> void: #handles what happens when the user an
 		var email_container = VBoxContainer.new()
 		
 		var sender_label = Label.new() #Create a label for the vbox for the Sender
-		sender_label.text = get_sender_name(sid) #populate it ***I think this line is the issue?***
+		sender_label.text = get_sender_name(current_email["sender_id"]) #populate it ***I think this line is the issue?***
 		sender_label.add_theme_font_size_override("font_size", 14) #formatting
 		sender_label.add_theme_constant_override("margin_left", 50) #formatting This line isn't working **because it isn't a margin container. Will fix
 		email_container.add_child(sender_label) #adds the sender info the the email
 		
 		var subject_label = Label.new() #creates a new label called subject_name
-		subject_label.text = subject #populates the text from the subject_label with the subject 
+		subject_label.text = current_email["subject"] #populates the text from the subject_label with the subject 
 		subject_label.add_theme_font_size_override("font_size", 10)#formatting
 		subject_label.add_theme_constant_override("margin_left", 50)#formatting Fix to margin container
 		email_container.add_child(subject_label) #adds the subject to the email
 
 		var panel = Panel.new()
 		panel.custom_minimum_size = Vector2(0, 50)
-		panel.connect("gui_input", Callable(self, "_on_email_click").bind(email))
+		panel.connect("gui_input", Callable(self, "_on_email_click").bind(current_email))
 		panel.add_child(email_container)
 		panel.mouse_filter = Control.MOUSE_FILTER_STOP
-		$Unread_Messages/Unread_Vbox.add_child(panel) 
+		$Sent_Items/Sent_Vbox.add_child(panel) 
 		
 		
 		#var email_container = VBoxContainer.new()
@@ -380,7 +380,7 @@ func _on_submit_button_pressed() -> void: #handles what happens when the user an
 				var container = child.get_child(0)
 				if container is VBoxContainer and container.get_child_count() > 1:
 					var subject_check = container.get_child(1)
-					if subject_check is Label and subject_check.text == email.subject:
+					if subject_check is Label and subject_check.text == current_email.subject:
 						child.queue_free()
 						break
 	
