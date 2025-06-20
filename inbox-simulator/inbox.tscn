@@ -368,9 +368,9 @@ text = "Inbox"
 [node name="Read_Vbox" type="VBoxContainer" parent="Read_Messages"]
 layout_mode = 0
 offset_left = 7.0
-offset_top = 47.0
+offset_top = 43.0
 offset_right = 295.0
-offset_bottom = 597.0
+offset_bottom = 593.0
 
 [node name="Read_Unread" type="CheckButton" parent="."]
 offset_left = 376.0
@@ -397,9 +397,9 @@ text = "Reply"
 
 [node name="Main_Area" type="RichTextLabel" parent="Main_Message"]
 layout_mode = 0
-offset_left = 2.0
-offset_top = 1.0
-offset_right = 728.0
+offset_left = 22.0
+offset_top = 25.0
+offset_right = 705.0
 offset_bottom = 493.0
 theme_override_colors/default_color = Color(0, 0, 0, 1)
 bbcode_enabled = true
@@ -631,7 +631,6 @@ theme_override_styles/normal = SubResource("StyleBoxEmpty_4bcak")
 text = "X"
 
 [node name="Sent_Items" type="Panel" parent="."]
-visible = false
 offset_left = 233.0
 offset_top = 110.0
 offset_right = 536.0

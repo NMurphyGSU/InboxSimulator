@@ -44,6 +44,7 @@ var sender_name
 var title = ""
 var color #This should be a circle in this color next to the sender's name- save as an array and then select the color from there
 var sender_lookup = {}
+var sid
 
 #---------------------------------------------------------------------------------------------------
 
@@ -128,7 +129,7 @@ func _ready():
 	print(senders_object.data)          
 
 	for sender in senders_object.data["senders"]:
-		sender_lookup[sender["id"]] = sender["name"] #key value pairs
+		sender_lookup[int(sender["id"])] = sender["name"] #key value pairs
 		
 	print("sender_lookup populated with:", sender_lookup) #this is correct
 	
@@ -157,7 +158,7 @@ func populate_yourrole():
 	else:
 		label.append_text("[i][color=gray]No company info available.[/color][/i]")		
 
-func get_sender_name(sid: int) -> String:
+func get_sender_name(sender_id: int) -> String:
 	#var email
 	print("get_sender_name method accessed")
 	if sender_id == null:
@@ -166,13 +167,11 @@ func get_sender_name(sid: int) -> String:
 		print("sender_id still good")
 	 
 	return sender_lookup.get(sender_id, "Unknown Sender")
-	
-		
-func populate_unread_emails(): # I think this is close, but nothing is displaying correctly in the vbox. Also sender names still not populating. 
+
+func populate_unread_emails(): # 
 	 
-	var email_container = VBoxContainer.new()
-	
 	for email in emails: #for each email that is inside of the emails array (runs for each email)
+		#var email_container = VBoxContainer.new()
 		if email == null: #if that email is null then
 			print("email is null") #tell me that email is null
 			continue
@@ -182,17 +181,40 @@ func populate_unread_emails(): # I think this is close, but nothing is displayin
 
 		var sid = email["sender_id"] #assigns the sender id of that email to sid
 		var subject = email["subject"] #assigns the subject of the email to the subject variable
+		
+		var email_container = VBoxContainer.new()
+		
+		
+		#-----This part allows me to fiddle with the formatting but as of now it breaks the read/unread portion. Leaving for now----------------------------
+		#var sender_margin = MarginContainer.new()
+		#sender_margin.add_theme_constant_override("margin_left", 10)
+		#sender_margin.add_theme_constant_override("margin_top", 5)
+		#var sender_label = Label.new()
+		#sender_label.text = get_sender_name(sid)
+		#sender_label.add_theme_font_size_override("font_size", 14)
+		#email_container.add_child(sender_label)
+		#sender_margin.add_child(sender_label)
+		#email_container.add_child(sender_margin)
+
+		#var subject_margin = MarginContainer.new()
+		#subject_margin.add_theme_constant_override("margin_left", 10)
+		#var subject_label = Label.new()
+		#subject_label.text = email["subject"]
+		#subject_label.add_theme_font_size_override("font_size", 10)
+		#subject_margin.add_child(subject_label)
+		#email_container.add_child(subject_margin)
+		#--------------------------------------------------------------------------------------------------------------------------------------------------
 
 		var sender_label = Label.new() #Create a label for the vbox for the Sender
 		sender_label.text = get_sender_name(sid) #populate it ***I think this line is the issue?***
 		sender_label.add_theme_font_size_override("font_size", 14) #formatting
-		sender_label.add_theme_constant_override("margin_left", 10) #formatting
+		sender_label.add_theme_constant_override("margin_left", 50) #formatting This line isn't working **because it isn't a margin container. Will fix
 		email_container.add_child(sender_label) #adds the sender info the the email
 		
 		var subject_label = Label.new() #creates a new label called subject_name
 		subject_label.text = subject #populates the text from the subject_label with the subject 
 		subject_label.add_theme_font_size_override("font_size", 10)#formatting
-		subject_label.add_theme_constant_override("margin_left", 10)#formatting
+		subject_label.add_theme_constant_override("margin_left", 50)#formatting Fix to margin container
 		email_container.add_child(subject_label) #adds the subject to the email
 
 		var panel = Panel.new()
@@ -200,65 +222,65 @@ func populate_unread_emails(): # I think this is close, but nothing is displayin
 		panel.connect("gui_input", Callable(self, "_on_email_click").bind(email))
 		panel.add_child(email_container)
 		panel.mouse_filter = Control.MOUSE_FILTER_STOP
-		$Unread_Messages/Unread_Vbox.add_child(panel) #Places the panels behind the individual emails. But only the first one?? The rest are on top. 
-		
-#---------------------------------------------------------------------------------------------------
+		$Unread_Messages/Unread_Vbox.add_child(panel) 
 
-
-
-func _on_email_selected(email_data): #when an email is selected
-	pass
+func _on_email_selected(email): #when an email is selected
+	#pass
 #-----Testing---------------------------------------------------------------------------------------	
-	#current_email = email_data
-	#var full_text = "[color=black][b]From:[/b] %s\n[b]Subject:[/b] %s\n\n%s[/color]" % [
-	#	email_data.sender,
-	#	email_data.subject,
-	#	email_data.body
-	#]
-	#$Main_Message/Main_Area.bbcode_text = full_text
+	current_email = email
+	var sid = email["sender_id"]
 
-	#if not email_data.read:
-	#	var email_container = VBoxContainer.new()
+	var full_text = "[color=black][b]From:[/b] %s\n[b]Subject:[/b] %s\n\n%s[/color]" % [
+		get_sender_name(sid), 
+		email.subject,
+		email.question
+	]
+	$Main_Message/Main_Area.bbcode_text = full_text
 
-	#	var sender_margin = MarginContainer.new()
-	#	sender_margin.add_theme_constant_override("margin_left", 10)
-	#	var sender_label = Label.new()
-	#	sender_label.text = current_email.sender
-	#	sender_label.add_theme_font_size_override("font_size", 14)
-	#	sender_margin.add_child(sender_label)
-	#	email_container.add_child(sender_margin)
+	if not email.read: 
+		
+		var email_container = VBoxContainer.new()
+		
+		var sender_margin = MarginContainer.new()
+		sender_margin.add_theme_constant_override("margin_left", 10)
+		sender_margin.add_theme_constant_override("margin_top", 5)
+		var sender_label = Label.new()
+		sender_label.text = get_sender_name(sid)
+		sender_label.add_theme_font_size_override("font_size", 14)
+		sender_margin.add_child(sender_label)
+		email_container.add_child(sender_margin)
 
-	#	var subject_margin = MarginContainer.new()
-	#	subject_margin.add_theme_constant_override("margin_left", 10)
-	#	var subject_label = Label.new()
-	#	subject_label.text = current_email.subject
-	#	subject_label.add_theme_font_size_override("font_size", 10)
-	#	subject_margin.add_child(subject_label)
-	#	email_container.add_child(subject_margin)
+		var subject_margin = MarginContainer.new()
+		subject_margin.add_theme_constant_override("margin_left", 10)
+		var subject_label = Label.new()
+		subject_label.text = email["subject"]
+		subject_label.add_theme_font_size_override("font_size", 10)
+		subject_margin.add_child(subject_label)
+		email_container.add_child(subject_margin)
+		
+		var panel = Panel.new()
+		panel.custom_minimum_size = Vector2(0, 50)
+		panel.connect("gui_input", Callable(self, "_on_email_click").bind(email))
+		panel.add_child(email_container)
+		panel.mouse_filter = Control.MOUSE_FILTER_STOP
 
-	#	var panel = Panel.new()
-	#	panel.custom_minimum_size = Vector2(0, 50)
-	#	panel.connect("gui_input", Callable(self, "_on_email_click").bind(email_data))
-	#	panel.add_child(email_container)
-	#	panel.mouse_filter = Control.MOUSE_FILTER_STOP
+		$Read_Messages/Read_Vbox.add_child(panel)
 
-	#	$Read_Messages/Read_Vbox.add_child(panel)
+		for child in $Unread_Messages/Unread_Vbox.get_children():
+			if child.get_child_count() > 0:
+				var container = child.get_child(0)
+				if container is VBoxContainer and container.get_child_count() > 1:
+					var subject_check = container.get_child(1)
+					if subject_check is Label and subject_check.text == email.subject:
+						child.queue_free()
+						break
+	
+	email.read = true
+	update_email_counters()
 
-	#	for child in $Unread_Messages/Unread_Vbox.get_children():
-	#		if child.get_child_count() > 0:
-	#			var container = child.get_child(0)
-	#			if container is VBoxContainer and container.get_child_count() > 1:
-	#				var subject_check = container.get_child(1)
-	#				if subject_check is Label and subject_check.text == email_data.subject:
-	#					child.queue_free()
-	#					break
-
-		#email_data.read = true
-	#	update_email_counters()
-
-func _on_email_click(event: InputEvent, email_data): #when the user clicks the emails
+func _on_email_click(event: InputEvent, email): #when the user clicks the emails
 	if event is InputEventMouseButton and event.pressed:
-		_on_email_selected(email_data)
+		_on_email_selected(email)
 
 func update_email_counters(): #handles the counters on the side panel
 	var inbox_count = 0
@@ -272,62 +294,123 @@ func update_email_counters(): #handles the counters on the side panel
 		else:
 			inbox_count += 1
 #-----------------------------
+	for email in emails:
+		print(email["subject"], " answered? ", email.get("answered", false))
 
 	$Side_Panel/Inbox_Number.text = str(inbox_count)
 	$Side_Panel/Sent_Items_Number.text = str(sent_count)
 
-#-----Handles panel switching between objects in the game-------------------------------------------
+#-----Mostly handles panel switching between objects in the game-------------------------------------------
 
 func _on_submit_button_pressed() -> void: #handles what happens when the user answers the emails **probably put attribute info here**
 	$Response.visible = false
 	$Answer.visible = false
-
+	
+	current_email = email
+	if current_email and not current_email.get("answered", false):
+		current_email["answered"] = true
+	
+	#current_email = email
 	#if current_email and not current_email["answered"]:
-
 	#	current_email.answered = true
 
+		var unread_box = $Unread_Messages/Unread_Vbox
+		var read_box = $Read_Messages/Read_Vbox
 
-	#	var unread_box = $Unread_Messages/Unread_Vbox
-	#	var read_box = $Read_Messages/Read_Vbox
+		for box in [unread_box, read_box]:
+			for child in box.get_children():
+				if child.get_child_count() > 0:
+					var container = child.get_child(0)
+					if container is VBoxContainer and container.get_child_count() > 1:
+						var subject_check = container.get_child(1)
+						if subject_check is MarginContainer and subject_check.get_child_count() > 0: #check this one
+							var subject_check_label = subject_check.get_child(0)
+							if subject_check_label is Label and subject_check_label.text == current_email.subject:
+								child.queue_free()
+								break
+		
+		var email_container = VBoxContainer.new()
+		
+		var sender_label = Label.new() #Create a label for the vbox for the Sender
+		sender_label.text = get_sender_name(sid) #populate it ***I think this line is the issue?***
+		sender_label.add_theme_font_size_override("font_size", 14) #formatting
+		sender_label.add_theme_constant_override("margin_left", 50) #formatting This line isn't working **because it isn't a margin container. Will fix
+		email_container.add_child(sender_label) #adds the sender info the the email
+		
+		var subject_label = Label.new() #creates a new label called subject_name
+		subject_label.text = subject #populates the text from the subject_label with the subject 
+		subject_label.add_theme_font_size_override("font_size", 10)#formatting
+		subject_label.add_theme_constant_override("margin_left", 50)#formatting Fix to margin container
+		email_container.add_child(subject_label) #adds the subject to the email
 
-	#	for box in [unread_box, read_box]:
-	#		for child in box.get_children():
-	#			if child.get_child_count() > 0:
-	#				var container = child.get_child(0)
-	#				if container is VBoxContainer and container.get_child_count() > 1:
-	#					var subject_check = container.get_child(1)
-	#					if subject_check is MarginContainer and subject_check.get_child_count() > 0:
-	#						var subject_check_label = subject_check.get_child(0)
-	#						if subject_check_label is Label and subject_check_label.text == current_email.subject:
-	#							child.queue_free()
-	#							break
+		var panel = Panel.new()
+		panel.custom_minimum_size = Vector2(0, 50)
+		panel.connect("gui_input", Callable(self, "_on_email_click").bind(email))
+		panel.add_child(email_container)
+		panel.mouse_filter = Control.MOUSE_FILTER_STOP
+		$Unread_Messages/Unread_Vbox.add_child(panel) 
+		
+		
+		#var email_container = VBoxContainer.new()
+		#var subject = email["subject"] 
+		#var sender_label = Label.new() 
+		#sender_label.text = get_sender_name(sid)
+		#sender_label.add_theme_font_size_override("font_size", 14)
+		#sender_label.add_theme_constant_override("margin_left", 10)
+		#email_container.add_child(sender_label) 
 
-	#	var email_container = VBoxContainer.new()
+		#var subject_margin = MarginContainer.new()
+		#subject_margin.add_theme_constant_override("margin_left", 10)
+		#var subject_label = Label.new()
+		#subject_label.text = current_email.subject
+		#subject_label.add_theme_font_size_override("font_size", 10)
+		#subject_margin.add_child(subject_label)
+		#email_container.add_child(subject_margin)
+		
+		#var panel = Panel.new()
+		#panel.custom_minimum_size = Vector2(0, 50)
+		#panel.connect("gui_input", Callable(self, "_on_email_click").bind(email))
+		#panel.add_child(email_container)
+		#panel.mouse_filter = Control.MOUSE_FILTER_STOP
 
-	#	var sender_margin = MarginContainer.new()
-	#	sender_margin.add_theme_constant_override("margin_left", 10)
-	#	var sender_label = Label.new()
-	#	sender_label.text = current_email.sender
-	#	sender_label.add_theme_font_size_override("font_size", 14)
-	#	sender_margin.add_child(sender_label)
-	#	email_container.add_child(sender_margin)
+		#$Read_Messages/Read_Vbox.add_child(panel)
 
-	#	var subject_margin = MarginContainer.new()
-	#	subject_margin.add_theme_constant_override("margin_left", 10)
-	#	var subject_label = Label.new()
-	#	subject_label.text = current_email.subject
-	#	subject_label.add_theme_font_size_override("font_size", 10)
-	#	subject_margin.add_child(subject_label)
-	#	email_container.add_child(subject_margin)
+		for child in $Unread_Messages/Unread_Vbox.get_children():
+			if child.get_child_count() > 0:
+				var container = child.get_child(0)
+				if container is VBoxContainer and container.get_child_count() > 1:
+					var subject_check = container.get_child(1)
+					if subject_check is Label and subject_check.text == email.subject:
+						child.queue_free()
+						break
+	
+		
+		#var email_container = VBoxContainer.new()
 
-	#	var panel = Panel.new()
-	#	panel.custom_minimum_size = Vector2(0, 50)
-	#	panel.add_child(email_container)
-	#	panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		#var sender_margin = MarginContainer.new()
+		#sender_margin.add_theme_constant_override("margin_left", 10)
+		#var sender_label = Label.new()
+		#sender_label.text = current_email.sender
+		#sender_label.add_theme_font_size_override("font_size", 14)
+		#sender_margin.add_child(sender_label)
+		#email_container.add_child(sender_margin)
 
-	#	$Sent_Items/Sent_Vbox.add_child(panel)
+		#var subject_margin = MarginContainer.new()
+		#subject_margin.add_theme_constant_override("margin_left", 10)
+		#var subject_label = Label.new()
+		#subject_label.text = current_email.subject
+		#subject_margin.add_child(subject_label)
+		#email_container.add_child(subject_margin)
 
-	#	update_email_counters()
+		#var panel = Panel.new()
+		#panel.custom_minimum_size = Vector2(0, 50)
+		#panel.add_child(email_container)
+		#panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
+
+		$Sent_Items/Sent_Vbox.add_child(panel)
+		print("Marking answered:", current_email["subject"])
+
+		update_email_counters()
 
 func _on_exit_button_pressed() -> void: #button to quit the game
 	get_tree().quit()
