@@ -1,14 +1,24 @@
 # Author: Michael Knighten
 # Date: 6/13/2025
+# Last Modified: 6/20/2025
 #
 # Descritption:
-# This script handles the entire login scene and saves account information
+# This script handles the entire login scene and saves/accesses account information
 #
 # JSON save location: Owner>AppData>Roaming>Godot>app_userdata>Inbox Simulator>Data
 #
 # Notes:
-# -Currently creates account data but not attributes(Add attributes later)
+#
+# Added: 6/13/2025
+# -Currently creates account data but not attributes
 # -When login is successful it will put you into the self assessment scene
+# -Reads attributes from a text file and initializes them in the JSON
+#
+# Added: 6/19-20/2025
+# -Holds the login username so it can access that specific account information via Singleton.gd
+# -Attributes are read from a text file in the "Attributes" folder and then written to the JSON
+# -Capital letter after attributes does not mean anything, was done to prevent shadowing since my naming scemes are lack luster
+# !!!SCRIPT IS COMPLETE FOR PROTOTYPE!!!
 #----------------------------------
 
 #----------------------------------
@@ -23,12 +33,16 @@ extends Control
 @export var create_button: Button
 @export var next_scene: PackedScene  # Drag your next scene resource here
 
-const SAVE_PATH := "user://Data/User_Data.json"
+const SAVE_PATH := "user://Data/User_Data.json" # Writable
 var user_data := {}
 var character_limit: int = 8
+var ATTRIBUTE_PATH := "res://Attributes/attributes.txt" # Not writable (Godot runtime restriction)
+var attributes : String = ""
 
 #----------------------------------
 func _ready():
+	
+	attributes = write_attributes()
 	
 	load_user_data()
 	
@@ -108,6 +122,7 @@ func _on_LoginButton_pressed():
 	var password = password_input.text.strip_edges()
 
 	if user_data.has(username) and user_data[username]["password"] == password:
+		Hold_Username_Logged_In(username)# Save the username
 		_change_scene()
 	else:
 		account_message_label.text = "Account not found or wrong password. Please create an account."
@@ -125,8 +140,9 @@ func _on_CreateButton_pressed():
 		account_message_label.text = "Invalid password. Please follow the rules."
 		return
 
-	create_new_user(username, password)
+	create_new_user(username, password, attributes)
 	account_message_label.text = "Account created! Proceeding..."
+	Hold_Username_Logged_In(username)# Save the username
 	_change_scene()
 
 
@@ -153,10 +169,11 @@ func is_valid_password(password: String) -> bool:
 	return true
 
 #----------------------------------
-func create_new_user(username: String, password: String):
+func create_new_user(username: String, password: String, attributesR: String):
 	user_data[username] = {
 		"password": password,
-		"attributes": {}
+		"attributes Self": attributesR,
+		"attributes Eval": attributesR
 	}
 	save_user_data()
 
@@ -164,3 +181,30 @@ func create_new_user(username: String, password: String):
 func _change_scene():
 	if next_scene:
 		get_tree().change_scene_to_packed(next_scene)
+		
+#----------------------------------
+func load_attributes(path: String) -> Array:
+	var attributesK = []
+	var file = FileAccess.open(path, FileAccess.READ)
+	if file:
+		while not file.eof_reached():
+			var line = file.get_line().strip_edges()
+			if line != "":
+				attributesK.append(line)
+		file.close()
+	else:
+		push_error("Failed to open attributes file: " + path)
+	return attributesK
+#----------------------------------
+func write_attributes():
+	var attributesW = load_attributes(ATTRIBUTE_PATH)
+	var attribute_list: String = ""
+	for attributeN in attributesW:
+		attribute_list += " %s:%d/" % [attributeN, 0]
+	return attribute_list
+#----------------------------------
+func Hold_Username_Logged_In(used_username: String):# This is what holds the logged in users name for read/write access throughout the application.
+	print(used_username + " is now keyed as the active user.")
+	# Save username to global variable (Singleton)
+	Singleton.Current_Username = used_username
+	print(Singleton.Current_Username + " is saved as the key")

@@ -15,6 +15,10 @@ run/main_scene="res://Scenes/login_scene.tscn"
 config/features=PackedStringArray("4.3", "Forward Plus")
 config/icon="res://icon.svg"
 
+[autoload]
+
+Singleton="*res://Scripts/Singleton.gd"
+
 [display]
 
 window/size/viewport_width=1280

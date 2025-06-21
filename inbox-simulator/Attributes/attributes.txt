@@ -1,0 +1,5 @@
+health
+armor
+strength
+intelligence
+agility
