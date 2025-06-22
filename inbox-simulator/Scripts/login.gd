@@ -14,10 +14,11 @@
 # -When login is successful it will put you into the self assessment scene
 # -Reads attributes from a text file and initializes them in the JSON
 #
-# Added: 6/19-20/2025
+# Added: 6/19-21/2025
 # -Holds the login username so it can access that specific account information via Singleton.gd
 # -Attributes are read from a text file in the "Attributes" folder and then written to the JSON
 # -Capital letter after attributes does not mean anything, was done to prevent shadowing since my naming scemes are lack luster
+# -Added a title
 # !!!SCRIPT IS COMPLETE FOR PROTOTYPE!!!
 #----------------------------------
 

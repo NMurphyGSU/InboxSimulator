@@ -6,16 +6,19 @@
 # This is simply put an object that is meant to be compiled into a list dependent on the number of attributes under a username in a JSON.
 # It handles manual input of the value the user believes they should have in a specified attribute.
 #
+#
 # Notes:
 #
-# Added: 6/19-20/2025
-# - Systems that handle the naming, value, and input fields
-#
+# Added: 6/19-21/2025
+# -Systems that handle the naming, value, and input fields
+# -Issue noted: issue where the scroll wheel can manipulate the slider while scrolling(Not Fixed)
+# !!!SCRIPT IS COMPLETE FOR PROTOTYPE!!!
+
 extends Control
 
-@onready var name_label = $name_label
-@onready var attribute_slider = $value_slider
-@onready var attribute_label = $value_label
+@onready var name_label = $Label_Attribute
+@onready var attribute_slider = $HSlider_Attribute
+@onready var attribute_label = $Label_Value
 
 func _ready():
 	attribute_slider.value_changed.connect(_on_slider_value_changed)

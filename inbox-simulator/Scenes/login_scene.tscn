@@ -1,7 +1,10 @@
-[gd_scene load_steps=3 format=3 uid="uid://b8buoh1os3sjj"]
+[gd_scene load_steps=4 format=3 uid="uid://b8buoh1os3sjj"]
 
 [ext_resource type="Script" path="res://Scripts/login.gd" id="1_a1jlg"]
 [ext_resource type="PackedScene" uid="uid://bv7o7amfbnwni" path="res://Scenes/self_assessment_scene.tscn" id="2_m1bmj"]
+
+[sub_resource type="LabelSettings" id="LabelSettings_g173t"]
+font_size = 50
 
 [node name="LoginScene" type="Node"]
 
@@ -104,3 +107,12 @@ grow_horizontal = 2
 grow_vertical = 2
 pivot_offset = Vector2(75, 25)
 text = "Create Account"
+
+[node name="Label_Title" type="Label" parent="CanvasLayer/Control"]
+offset_left = 237.0
+offset_right = 1019.0
+offset_bottom = 69.0
+text = "LOGIN
+"
+label_settings = SubResource("LabelSettings_g173t")
+horizontal_alignment = 1
