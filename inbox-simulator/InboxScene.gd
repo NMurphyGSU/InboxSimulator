@@ -15,9 +15,10 @@ var role = ""
 var dialogue_path = "res://sample-data/dialog-tree.json" #dialogue tree JSON file
 var trees: Array = []
 var branches: Array = []
+var index = 0
 var from = null
 var to = null
-var current_node_id
+var current_node_id = 1
 var correct
 var check = ""
 
@@ -135,7 +136,7 @@ func _ready():
 		
 	#print("sender_lookup populated with:", sender_lookup) #this is correct
 	
-	populate_unread_emails() 
+	load_emails() 
 	update_email_counters() #this works yay!
 	#---------------------------------------------------------------------------------------------------
 
@@ -160,12 +161,12 @@ func populate_yourrole():
 	else:
 		label.append_text("[i][color=gray]No company info available.[/color][/i]")		
 
-func get_sender_name(sender_id: int) -> String:
+func get_sender_name(sender_id: int) -> String: #Helper method for the senders
 	
-	if sender_id == null:
-		print("sender_id null")
-	else: 
-		print("sender_id still good")
+	#if sender_id == null:
+	#	print("sender_id null")
+	#else: 
+	#	print("sender_id still good")
 	 
 	return sender_lookup.get(sender_id, "Unknown Sender")
 
@@ -221,17 +222,48 @@ func populate_unread_emails(): # will handle formatting mostly
 		panel.mouse_filter = Control.MOUSE_FILTER_STOP
 		$Unread_Messages/Unread_Vbox.add_child(panel) 
 
+func check_criteria(email: Dictionary, criteria: String) -> bool: #Helper for answer checking
+	if criteria == "":
+		return true  # If there's no condition, treat as always true
+
+	var parts = criteria.split("=")
+	if parts.size() != 2:
+		print("Invalid criteria format:", criteria)
+		return false
+
+	var key = parts[0]
+	var expected_value = int(parts[1])
+
+	if not email.has(key):
+		print("Email missing key:", key)
+		return false
+
+	var actual_value = int(email[key])
+	return actual_value == expected_value
+
 func load_emails(): #will use to work though the dialogue tree and then send to populate
 
-	#current_email = emails[index]
-	#if scenario_id == 1: #allows for more scenarios in the future, currently shows scenario 1 (set 1 as default)
-	#	for branch in branches:
-	#		if branch ["from"] == current_node_id:
-				#initialize the string variable here
-				#if check
-				#if correct: #T/F
-					#current_node_id = branch["to"]	
-						#move to next branch
+	current_email = emails[index]
+	if scenario_id == 1: #allows for more scenarios in the future, currently shows scenario 1 (set 1 as default)
+		for branch in branches:
+			if branch ["from"] == current_node_id:
+				var criteria_string = branch["criteria"] 
+				var parts = criteria_string.split ("=")
+				var key = parts[0]
+				var expected_value = int(parts[1])
+				
+				if current_email.has(key):
+					var actual_value = int(current_email[key])
+					if actual_value == expected_value:
+						current_node_id = branch["to"]
+						break
+						
+	index += 1
+	if index < emails.size():
+		load_emails()
+	else:
+		print("Finished emails")
+
 		#-----Dialogue tree for email flow---------------------------------------------------------
 		#for email in emails   gives all of the email options
 		
