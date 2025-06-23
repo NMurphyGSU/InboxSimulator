@@ -13,16 +13,19 @@ var role = ""
 
 #-----Sample data for functionality------------------------------
 var dialogue_path = "res://sample-data/dialog-tree.json" #dialogue tree JSON file
-var trees
-var branches
+var trees: Array = []
+var branches: Array = []
 var from = null
 var to = null
+var current_node_id
+var correct
+var check = ""
 
 var questions_path = "res://sample-data/questions.json" #questions JSON file
 var emails: Array = []
 var email
 var current_email = null
-var scenario_id
+var scenario_id = 1 #do we want this assigned?
 var questions
 var id
 var sender_id
@@ -45,7 +48,6 @@ var title = ""
 var color #This should be a circle in this color next to the sender's name- save as an array and then select the color from there
 var sender_lookup = {}
 var sid
-
 #---------------------------------------------------------------------------------------------------
 
 func _ready():
@@ -125,17 +127,17 @@ func _ready():
 	var send = senders_file.get_as_text()
 	var senders_object = JSON.new()
 	senders_object.parse(send)
-	print(typeof(senders_object.data))  
-	print(senders_object.data)          
+	#print(typeof(senders_object.data))  
+	#print(senders_object.data)          
 
 	for sender in senders_object.data["senders"]:
 		sender_lookup[int(sender["id"])] = sender["name"] #key value pairs
 		
-	print("sender_lookup populated with:", sender_lookup) #this is correct
+	#print("sender_lookup populated with:", sender_lookup) #this is correct
 	
 	populate_unread_emails() 
 	update_email_counters() #this works yay!
-#---------------------------------------------------------------------------------------------------
+	#---------------------------------------------------------------------------------------------------
 
 func _process(_delta: float) -> void:
 	pass
@@ -159,8 +161,7 @@ func populate_yourrole():
 		label.append_text("[i][color=gray]No company info available.[/color][/i]")		
 
 func get_sender_name(sender_id: int) -> String:
-	#var email
-	print("get_sender_name method accessed")
+	
 	if sender_id == null:
 		print("sender_id null")
 	else: 
@@ -168,22 +169,17 @@ func get_sender_name(sender_id: int) -> String:
 	 
 	return sender_lookup.get(sender_id, "Unknown Sender")
 
-func populate_unread_emails(): # 
+func populate_unread_emails(): # will handle formatting mostly
 	 
 	for email in emails: #for each email that is inside of the emails array (runs for each email)
-		#var email_container = VBoxContainer.new()
+		var sid = email["sender_id"] #assigns the sender id of that email to sid
+		var subject = email["subject"] #assigns the subject of the email to the subject variable
 		if email == null: #if that email is null then
 			print("email is null") #tell me that email is null
 			continue
 		if !email.has("sender_id") or !email.has("subject"): #if that same email does not have a sender id or it does not have a subject
 			print("email missing required fields:", email) #tell me the missing pieces
 			continue
-
-		var sid = email["sender_id"] #assigns the sender id of that email to sid
-		var subject = email["subject"] #assigns the subject of the email to the subject variable
-		
-		var email_container = VBoxContainer.new()
-		
 		
 		#-----This part allows me to fiddle with the formatting but as of now it breaks the read/unread portion. Leaving for now----------------------------
 		#var sender_margin = MarginContainer.new()
@@ -204,7 +200,8 @@ func populate_unread_emails(): #
 		#subject_margin.add_child(subject_label)
 		#email_container.add_child(subject_margin)
 		#--------------------------------------------------------------------------------------------------------------------------------------------------
-
+		
+		var email_container = VBoxContainer.new()
 		var sender_label = Label.new() #Create a label for the vbox for the Sender
 		sender_label.text = get_sender_name(sid) #populate it ***I think this line is the issue?***
 		sender_label.add_theme_font_size_override("font_size", 14) #formatting
@@ -223,6 +220,54 @@ func populate_unread_emails(): #
 		panel.add_child(email_container)
 		panel.mouse_filter = Control.MOUSE_FILTER_STOP
 		$Unread_Messages/Unread_Vbox.add_child(panel) 
+
+func load_emails(): #will use to work though the dialogue tree and then send to populate
+
+	#current_email = emails[index]
+	#if scenario_id == 1: #allows for more scenarios in the future, currently shows scenario 1 (set 1 as default)
+	#	for branch in branches:
+	#		if branch ["from"] == current_node_id:
+				#initialize the string variable here
+				#if check
+				#if correct: #T/F
+					#current_node_id = branch["to"]	
+						#move to next branch
+		#-----Dialogue tree for email flow---------------------------------------------------------
+		#for email in emails   gives all of the email options
+		
+
+			
+		#get branches
+		#what is from          check criteria for correctness for navigation to next to
+		#if criteria correct
+		#to
+		#else to
+		#increment scenario_id  Is this correct? Do we want to increment here or later? Not enough JSON info
+		
+		#else if                allows more questions in scenario 1
+		#what is from           check criteria for correctness for navigation to next to
+		#get branches
+		#if criteria correct
+		#to
+		#else to
+		#show to 
+		#increment scenario id
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		populate_unread_emails()
+
+func populate_questions(): #populate the questions into the form
+	pass
+
+func load_questions(): #will load the questions per the dialogue tree
+	pass
 
 func _on_email_selected(email): #when an email is selected
 	#pass
@@ -294,8 +339,8 @@ func update_email_counters(): #handles the counters on the side panel
 		else:
 			inbox_count += 1
 #-----------------------------
-	for email in emails:
-		print(email["subject"], " answered? ", email.get("answered", false))
+	#for email in emails:
+		#print(email["subject"], " answered? ", email.get("answered", false))
 
 	$Side_Panel/Inbox_Number.text = str(inbox_count)
 	$Side_Panel/Sent_Items_Number.text = str(sent_count)
@@ -408,7 +453,7 @@ func _on_submit_button_pressed() -> void: #handles what happens when the user an
 		#panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
 
 		$Sent_Items/Sent_Vbox.add_child(panel)
-		print("Marking answered:", current_email["subject"])
+		#print("Marking answered:", current_email["subject"])
 
 		update_email_counters()
 
