@@ -514,7 +514,6 @@ offset_bottom = 368.0
 text = "Submit"
 
 [node name="Answer" type="Panel" parent="."]
-visible = false
 offset_left = 640.0
 offset_top = 244.0
 offset_right = 1185.0

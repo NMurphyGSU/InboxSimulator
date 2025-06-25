@@ -114,6 +114,10 @@ func _ready():
 	var dialogue = dialogue_file.get_as_text()
 	var dialogue_object = JSON.new()
 	dialogue_object.parse(dialogue)
+	var tree_data = dialogue_object.get_data()
+	branches = tree_data["trees"][0]["branches"]
+
+
 	
 	#scenario file
 	var scenario_file = FileAccess.open(scenario_path, FileAccess.READ) #Scenario.json
@@ -171,17 +175,22 @@ func get_sender_name(sender_id: int) -> String: #Helper method for the senders
 	return sender_lookup.get(sender_id, "Unknown Sender")
 
 func populate_unread_emails(): # will handle formatting mostly
-	 
-	for email in emails: #for each email that is inside of the emails array (runs for each email)
-		var sid = email["sender_id"] #assigns the sender id of that email to sid
-		var subject = email["subject"] #assigns the subject of the email to the subject variable
-		if email == null: #if that email is null then
-			print("email is null") #tell me that email is null
-			continue
-		if !email.has("sender_id") or !email.has("subject"): #if that same email does not have a sender id or it does not have a subject
-			print("email missing required fields:", email) #tell me the missing pieces
-			continue
-		
+	if current_email == null:
+		print("current email is null")
+		return
+	
+	var email = current_email
+	#for current_email in emails: #for each email that is inside of the emails array (runs for each email)
+	var sid = email["sender_id"] #assigns the sender id of that email to sid
+	var subject = email["subject"] #assigns the subject of the email to the subject variable
+	if email == null: #if that email is null then
+		print("email is null") #tell me that email is null
+		#continue
+		return
+	if !email.has("sender_id") or !email.has("subject"): #if that same email does not have a sender id or it does not have a subject
+		print("email missing required fields:", email) #tell me the missing pieces
+		#continue
+		return
 		#-----This part allows me to fiddle with the formatting but as of now it breaks the read/unread portion. Leaving for now----------------------------
 		#var sender_margin = MarginContainer.new()
 		#sender_margin.add_theme_constant_override("margin_left", 10)
@@ -243,29 +252,23 @@ func check_criteria(email: Dictionary, criteria: String) -> bool: #Helper for an
 
 func load_emails(): #will use to work though the dialogue tree and then send to populate
 
-	current_email = emails[index]
-	if scenario_id == 1: #allows for more scenarios in the future, currently shows scenario 1 (set 1 as default)
+	for i in range(emails.size()):
+		var email = emails[i]
 		for branch in branches:
-			if branch ["from"] == current_node_id:
-				var criteria_string = branch["criteria"] 
-				var parts = criteria_string.split ("=")
-				var key = parts[0]
-				var expected_value = int(parts[1])
-				
-				if current_email.has(key):
-					var actual_value = int(current_email[key])
-					if actual_value == expected_value:
-						current_node_id = branch["to"]
-						break
-						
-	index += 1
-	if index < emails.size():
-		load_emails()
-	else:
-		print("Finished emails")
-
+			print("Checking branch from:", branch["from"], "against current_node_id:", current_node_id)
+			if branch["from"] == current_node_id:
+				var criteria_string = branch["criteria"]
+				if check_criteria(email, criteria_string):
+					print("✔ Found matching email:", email["subject"])
+					current_email = email
+					current_node_id = branch["to"]
+					index = i
+					print("Loading current_email:", current_email)
+					populate_unread_emails()
+					return  # Only load the first matching email
+	print("❌ No matching email found.")
 		#-----Dialogue tree for email flow---------------------------------------------------------
-		#for email in emails   gives all of the email options
+		#for email in emails   gives all of the email options **No, you don't want all emails. Just start with the top of the dialogue tree
 		
 
 			
@@ -286,14 +289,6 @@ func load_emails(): #will use to work though the dialogue tree and then send to 
 		#increment scenario id
 		
 		
-		
-		
-		
-		
-		
-		
-		
-		populate_unread_emails()
 
 func populate_questions(): #populate the questions into the form
 	pass
@@ -486,7 +481,7 @@ func _on_submit_button_pressed() -> void: #handles what happens when the user an
 
 		$Sent_Items/Sent_Vbox.add_child(panel)
 		#print("Marking answered:", current_email["subject"])
-
+		#$Response/Submit_Button.visible = false This makes it happen for all. Maybe a answered flag?
 		update_email_counters()
 
 func _on_exit_button_pressed() -> void: #button to quit the game

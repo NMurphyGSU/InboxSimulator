@@ -64,54 +64,54 @@
         {
             "id": 3,
             "sender_id": 1,
-            "subject": "Re: Clarification of Strategy Types2",
+            "subject": "Wrong email",
             "question": "That's no quite right, I was expecting you to choose Business Strategy.\n\n I know it seems simple, but without good organization Strategic Management can become very complicated very quickly. Let's see if we can get on the same page. I have a quick follow-up for you.\n\n Still on the topic of 'types' of Strategy. When you are considering the company's overall direction, general attitude toward growth, and the management of its entire portfolio of businesses and product lines, what 'type' of strategy are we considering?",
             "randomize_answers": false,
             "answers": [
                 {
                     "text": "Operational Strategy",
-                    "criteria": "q2_correct=0"
+                    "criteria": "q3_correct=0"
                 },
                 {
                     "text": "Operational Strategy",
-                    "criteria": "q2_correct=0"
+                    "criteria": "q3_correct=0"
                 },
                 {
                     "text": "Product Strategy",
-                    "criteria": "q2_correct=0"
+                    "criteria": "q3_correct=0"
                 },
                 {
                     "text": "Corporate Strategy",
-                    "criteria": "q2_correct=1"
+                    "criteria": "q3_correct=1"
                 },
                 {
                     "text": "Business Strategy",
-                    "criteria": "q2_correct=0"
+                    "criteria": "q3_correct=0"
                 }
             ]
         },
 	     {
             "id": 3,
             "sender_id": 2,
-            "subject": "Re: Clarification of Strategy Types2",
+            "subject": "Fourth email",
             "question": "That's no quite right, I was expecting you to choose Business Strategy.\n\n I know it seems simple, but without good organization Strategic Management can become very complicated very quickly. Let's see if we can get on the same page. I have a quick follow-up for you.\n\n Still on the topic of 'types' of Strategy. When you are considering the company's overall direction, general attitude toward growth, and the management of its entire portfolio of businesses and product lines, what 'type' of strategy are we considering?",
             "randomize_answers": false,
             "answers": [
                 {
                     "text": "Operational Strategy",
-                    "criteria": "q2_correct=0"
+                    "criteria": "q4_correct=0"
                 },
                 {
                     "text": "Operational Strategy",
-                    "criteria": "q2_correct=0"
+                    "criteria": "q4_correct=0"
                 },
                 {
                     "text": "Product Strategy",
-                    "criteria": "q2_correct=0"
+                    "criteria": "q4_correct=0"
                 },
                 {
                     "text": "Corporate Strategy",
-                    "criteria": "q2_correct=1"
+                    "criteria": "q4_correct=1"
                 },
                 {
                     "text": "Business Strategy",
