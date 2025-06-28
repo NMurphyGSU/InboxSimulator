@@ -66,6 +66,7 @@ text = "The Purpose of the assessment...."
 label_settings = SubResource("LabelSettings_1u2pi")
 
 [node name="Label_Title" type="Label" parent="CanvasLayer/Control"]
+layout_mode = 0
 offset_left = 237.0
 offset_right = 1019.0
 offset_bottom = 69.0

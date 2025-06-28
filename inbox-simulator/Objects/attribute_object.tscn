@@ -10,6 +10,7 @@ font_size = 40
 
 [node name="Control" type="Control"]
 layout_mode = 3
+anchors_preset = 0
 offset_right = 370.0
 offset_bottom = 100.0
 script = ExtResource("1_s2mo0")

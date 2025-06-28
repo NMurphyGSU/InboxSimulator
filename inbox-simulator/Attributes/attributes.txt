@@ -3,3 +3,9 @@ armor
 strength
 intelligence
 agility
+1
+2
+3
+4
+5
+6

@@ -1,6 +1,6 @@
 # Author: Michael Knighten
 # Date: 6/21/2025
-# Last Modified: 6/21/2025
+# Last Modified: 6/27/2025
 #
 # Descritption:
 # Self Assessment scene, handles the slider attribute objects listing so players can self evaluate at their own preference.
@@ -18,19 +18,35 @@
 # -The names are correctly applied to each object
 # -Now based on the changes the use makes, they will need to press "Proceed" to record the attribute vales and move to the next scene. Lol... Deltarune reference.(In progress)
 # -Added the Label for "The purpose of the assessment...." and the title: "Pre-Assessment"
+#
+# Added: 6/27/2025
+# -Added the variable for the next scene.
+# -Added the function that handles the saving of the slider attributes for the current user in their self evaluated category.
+# -Added PROCEED button functionality.
+# !!!SCRIPT IS COMPLETE FOR PROTOTYPE!!!
+#--------------------------------------------
 
 extends Node
 
 @onready var control := $ScrollContainer/Control
+@onready var proceed_button = $Button_Proceed
 var attribute_box_scene := preload("res://Objects/attribute_object.tscn")
 var current_username = Singleton.Current_Username
 var json_path = "user://Data/User_Data.json"
 var recorded_data
 var number_of_attributes
 
+#---------------------------------------------------
+# Variable that holds the proceeding scene:
+var next_scene: String = ""
+#---------------------------------------------------
+
 func _ready():
+	proceed_button.pressed.connect(_on_proceed_pressed)
 	populate_attributes(Count_JSON_attributes())
 	apply_attributes_to_objects(recorded_data, number_of_attributes)
+
+#--------------------------------------------
 
 func Count_JSON_attributes():
 	var file = FileAccess.open(json_path, FileAccess.READ)
@@ -56,6 +72,8 @@ func Count_JSON_attributes():
 	print("Number of attributes:", parts.size())
 	number_of_attributes = parts.size()
 	return parts.size()
+
+#--------------------------------------------
 
 func apply_attributes_to_objects(att: String, size: int):
 	var attributes_array = []
@@ -93,6 +111,7 @@ func apply_attributes_to_objects(att: String, size: int):
 		child.set_display_name(attributes_array[index])
 		index += 1
 
+#--------------------------------------------
 
 func populate_attributes(count: int) -> void:
 	for child in control.get_children():
@@ -110,3 +129,65 @@ func populate_attributes(count: int) -> void:
 		
 	# Adjust container size to fit children
 	control.custom_minimum_size.y = count * offset
+	
+#--------------------------------------------
+	
+func _on_proceed_pressed():
+	var updated_attributes: Dictionary = {}
+	print("PROCEED button pressed")
+	var key
+	var value
+	
+	# Gather updated values from each attribute object:
+	for object in control.get_children():# <<<<-----------THIS IS WORKING-----------
+		key = object.get_display_name()
+		value = str(object.get_value())
+		print("TROUBLESHOOTING:" + key + ":" + value)
+		updated_attributes[key] = value
+
+	# Rebuild the attribute string in format "attr1:value1/attr2:value2/"
+	var updated_str := ""
+	for k in updated_attributes.keys():
+		updated_str += "%s:%s/" % [k, updated_attributes[k]]
+	print("TROUBLESHOOTING:" + updated_str)
+
+	# Load JSON data
+	var file = FileAccess.open(json_path, FileAccess.READ)
+	if file == null:
+		print("Failed to open JSON file for reading.")
+		return
+	var json_text = file.get_as_text()
+	file.close()
+
+	var json = JSON.new()
+	var err = json.parse(json_text)
+	if err != OK:
+		print("Error parsing JSON!")
+		return
+
+	var data = json.get_data()
+
+	# Ensure current user exists
+	if not data.has(current_username):
+		print("User '%s' not found in data." % current_username)
+		return
+
+	# Update attributes Self field
+	data[current_username]["attributes Self"] = updated_str
+	print("Updated 'attributes Self':", updated_str)
+
+	# Save changes
+	var save_file = FileAccess.open(json_path, FileAccess.WRITE)
+	if save_file == null:
+		print("Failed to open JSON file for writing.")
+		return
+	save_file.store_string(JSON.stringify(data, "\t"))
+	save_file.close()
+
+	print("Self attributes saved successfully.")
+
+	# Transition to next scene if set
+	if next_scene != "":
+		get_tree().change_scene_to_file(next_scene)
+	else:
+		print("Next scene path not set.")

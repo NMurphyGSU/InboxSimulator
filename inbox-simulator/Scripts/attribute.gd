@@ -1,6 +1,6 @@
 # Author: Michael Knighten
 # Date: 6/19/2025
-# Last Modified: 6/20/2025
+# Last Modified: 6/27/2025
 #
 # Descritption:
 # This is simply put an object that is meant to be compiled into a list dependent on the number of attributes under a username in a JSON.
@@ -12,6 +12,9 @@
 # Added: 6/19-21/2025
 # -Systems that handle the naming, value, and input fields
 # -Issue noted: issue where the scroll wheel can manipulate the slider while scrolling(Not Fixed)
+#
+# Added 6/27/2025
+# -Fixed getters
 # !!!SCRIPT IS COMPLETE FOR PROTOTYPE!!!
 
 extends Control
@@ -36,3 +39,6 @@ func set_value(value: float):
 
 func get_value() -> float:
 	return attribute_slider.value
+
+func get_display_name() -> String:
+	return name_label.text

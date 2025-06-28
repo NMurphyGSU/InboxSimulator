@@ -109,6 +109,7 @@ pivot_offset = Vector2(75, 25)
 text = "Create Account"
 
 [node name="Label_Title" type="Label" parent="CanvasLayer/Control"]
+layout_mode = 0
 offset_left = 237.0
 offset_right = 1019.0
 offset_bottom = 69.0
