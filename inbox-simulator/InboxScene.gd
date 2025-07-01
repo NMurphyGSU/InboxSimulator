@@ -18,7 +18,7 @@ var branches: Array = []
 var index = 0
 var from = null
 var to = null
-var current_node_id = 1
+var current_node_id = 0
 var correct
 var check = ""
 
@@ -260,7 +260,7 @@ func load_emails(): #will use to work though the dialogue tree and then send to 
 	if current_email == null and current_node_id != 0:
 		return
 
-	print(">>> When loading, current_email has keys:", current_email.keys())
+	#print(">>> When loading, current_email has keys:", current_email.keys())
 
 	for i in range(emails.size()): #iterates by index in the email array
 		var email = emails[i] #grabs the dictionary at that index so the rest of the loop can work with a shorter name
