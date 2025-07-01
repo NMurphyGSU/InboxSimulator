@@ -36,6 +36,8 @@ var randomize_answers = true
 var answers
 var text = ""
 var criteria = ""
+var selected_answer_dict : Dictionary = {}
+
 
 var scenario_path = "res://sample-data/scenario.json" #scenario JSON file
 var scenario: Array = [] #criteria in dictionary
@@ -251,24 +253,32 @@ func check_criteria(email: Dictionary, criteria: String) -> bool: #Helper for an
 	return actual_value == expected_value
 
 func load_emails(): #will use to work though the dialogue tree and then send to populate
+	#if current_email == null:
+	#	print("current_email is null at start of load_emails()")
+	#	return
 
-	for i in range(emails.size()):
-		var email = emails[i]
-		for branch in branches:
-			print("Checking branch from:", branch["from"], "against current_node_id:", current_node_id)
-			if branch["from"] == current_node_id:
-				var criteria_string = branch["criteria"]
-				if check_criteria(email, criteria_string):
-					print("✔ Found matching email:", email["subject"])
-					current_email = email
-					current_node_id = branch["to"]
-					index = i
-					print("Loading current_email:", current_email)
-					populate_unread_emails()
+	if current_email == null and current_node_id != 0:
+		return
+
+	print(">>> When loading, current_email has keys:", current_email.keys())
+
+	for i in range(emails.size()): #iterates by index in the email array
+		var email = emails[i] #grabs the dictionary at that index so the rest of the loop can work with a shorter name
+		for branch in branches: #for each branch we will test whether this email belongs to that branch's from/to path
+			print("Checking branch from:", branch["from"], "against current_node_id:", current_node_id) #print a debug 
+			if branch["from"] == current_node_id: #only branches whos from matches the current node are relavent here if they are true, current node id might be wrong or JSON might store from as a string?
+				var criteria_string = branch["criteria"] #saves the q1_correct=1 or other here
+				if check_criteria(email, criteria_string): #sends it to the helper
+					print("✔ Found matching email:", email["subject"]) #debug 
+					current_email = email #places the email that I need
+					current_node_id = branch["to"] #advances dialogue pointer for next decision cycle
+					index = i #stores where I am in the email array
+					print("Loading current_email:", current_email) #debug 
+					populate_unread_emails() #sends the email to the method that will populate the UI
 					return  # Only load the first matching email
 	print("❌ No matching email found.")
 		#-----Dialogue tree for email flow---------------------------------------------------------
-		#for email in emails   gives all of the email options **No, you don't want all emails. Just start with the top of the dialogue tree
+	#start with the top of the dialogue tree
 		
 
 			
@@ -277,7 +287,7 @@ func load_emails(): #will use to work though the dialogue tree and then send to 
 		#if criteria correct
 		#to
 		#else to
-		#increment scenario_id  Is this correct? Do we want to increment here or later? Not enough JSON info
+		#increment scenario_id  Is this correct? Do we want to increment here or later? Not enough JSON info?
 		
 		#else if                allows more questions in scenario 1
 		#what is from           check criteria for correctness for navigation to next to
@@ -287,7 +297,12 @@ func load_emails(): #will use to work though the dialogue tree and then send to 
 		#else to
 		#show to 
 		#increment scenario id
+		#Oh, maybe could use recursion here?
 		
+	if current_email == null:
+		print("current_email is null at the end of load emails")
+		return
+			
 		
 
 func populate_questions(): #populate the questions into the form
@@ -378,111 +393,71 @@ func _on_submit_button_pressed() -> void: #handles what happens when the user an
 	$Response.visible = false
 	$Answer.visible = false
 	
-	#current_email = email
-	if current_email and not current_email.get("answered", false):
-		current_email["answered"] = true
+	var chosen_answer := selected_answer_dict
+	var criteria_str: String = chosen_answer["criteria"]
 	
-	#current_email = email
-	#if current_email and not current_email["answered"]:
-	#	current_email.answered = true
+	var is_correct := criteria_str.ends_with("=1")
+	
+	var key_name := criteria_str.split("=")[0]
+	current_email[key_name] = 1 if is_correct else 0
+	
+	print("Recorded", key_name, "=", current_email[key_name])
+	print("Object ID:", current_email.get_instance_id())
+	print("Object ID in emails array:", emails[index].get_instance_id())
 
-		var unread_box = $Unread_Messages/Unread_Vbox
-		var read_box = $Read_Messages/Read_Vbox
-
-		for box in [unread_box, read_box]:
-			for child in box.get_children():
-				if child.get_child_count() > 0:
-					var container = child.get_child(0)
-					if container is VBoxContainer and container.get_child_count() > 1:
-						var subject_check = container.get_child(1)
-						if subject_check is MarginContainer and subject_check.get_child_count() > 0: #check this one
-							var subject_check_label = subject_check.get_child(0)
-							if subject_check_label is Label and subject_check_label.text == current_email.subject:
-								child.queue_free()
-								break
-		
-		var email_container = VBoxContainer.new()
-		
-		var sender_label = Label.new() #Create a label for the vbox for the Sender
-		sender_label.text = get_sender_name(current_email["sender_id"]) #populate it ***I think this line is the issue?***
-		sender_label.add_theme_font_size_override("font_size", 14) #formatting
-		sender_label.add_theme_constant_override("margin_left", 50) #formatting This line isn't working **because it isn't a margin container. Will fix
-		email_container.add_child(sender_label) #adds the sender info the the email
-		
-		var subject_label = Label.new() #creates a new label called subject_name
-		subject_label.text = current_email["subject"] #populates the text from the subject_label with the subject 
-		subject_label.add_theme_font_size_override("font_size", 10)#formatting
-		subject_label.add_theme_constant_override("margin_left", 50)#formatting Fix to margin container
-		email_container.add_child(subject_label) #adds the subject to the email
-
-		var panel = Panel.new()
-		panel.custom_minimum_size = Vector2(0, 50)
-		panel.connect("gui_input", Callable(self, "_on_email_click").bind(current_email))
-		panel.add_child(email_container)
-		panel.mouse_filter = Control.MOUSE_FILTER_STOP
-		$Sent_Items/Sent_Vbox.add_child(panel) 
-		
-		
-		#var email_container = VBoxContainer.new()
-		#var subject = email["subject"] 
-		#var sender_label = Label.new() 
-		#sender_label.text = get_sender_name(sid)
-		#sender_label.add_theme_font_size_override("font_size", 14)
-		#sender_label.add_theme_constant_override("margin_left", 10)
-		#email_container.add_child(sender_label) 
-
-		#var subject_margin = MarginContainer.new()
-		#subject_margin.add_theme_constant_override("margin_left", 10)
-		#var subject_label = Label.new()
-		#subject_label.text = current_email.subject
-		#subject_label.add_theme_font_size_override("font_size", 10)
-		#subject_margin.add_child(subject_label)
-		#email_container.add_child(subject_margin)
-		
-		#var panel = Panel.new()
-		#panel.custom_minimum_size = Vector2(0, 50)
-		#panel.connect("gui_input", Callable(self, "_on_email_click").bind(email))
-		#panel.add_child(email_container)
-		#panel.mouse_filter = Control.MOUSE_FILTER_STOP
-
-		#$Read_Messages/Read_Vbox.add_child(panel)
-
-		for child in $Unread_Messages/Unread_Vbox.get_children():
+	
+	current_email["answered"] = true
+	
+	load_emails()
+	
+	
+	#if current_email and not current_email.get("answered", false):
+	current_email["answered"] = true
+	var unread_box = $Unread_Messages/Unread_Vbox
+	var read_box = $Read_Messages/Read_Vbox
+	for box in [unread_box, read_box]:
+		for child in box.get_children():
 			if child.get_child_count() > 0:
 				var container = child.get_child(0)
 				if container is VBoxContainer and container.get_child_count() > 1:
 					var subject_check = container.get_child(1)
-					if subject_check is Label and subject_check.text == current_email.subject:
-						child.queue_free()
-						break
-	
+					if subject_check is MarginContainer and subject_check.get_child_count() > 0: #check this one
+						var subject_check_label = subject_check.get_child(0)
+						if subject_check_label is Label and subject_check_label.text == current_email.subject:
+							child.queue_free()
+							break
+	var email_container = VBoxContainer.new()
 		
-		#var email_container = VBoxContainer.new()
+	var sender_label = Label.new() #Create a label for the vbox for the Sender
+	sender_label.text = get_sender_name(current_email["sender_id"]) #populate it ***I think this line is the issue?***
+	sender_label.add_theme_font_size_override("font_size", 14) #formatting
+	sender_label.add_theme_constant_override("margin_left", 50) #formatting This line isn't working **because it isn't a margin container. Will fix
+	email_container.add_child(sender_label) #adds the sender info the the email
+	
+	var subject_label = Label.new() #creates a new label called subject_name
+	subject_label.text = current_email["subject"] #populates the text from the subject_label with the subject 
+	subject_label.add_theme_font_size_override("font_size", 10)#formatting
+	subject_label.add_theme_constant_override("margin_left", 50)#formatting Fix to margin container
+	email_container.add_child(subject_label) #adds the subject to the email
 
-		#var sender_margin = MarginContainer.new()
-		#sender_margin.add_theme_constant_override("margin_left", 10)
-		#var sender_label = Label.new()
-		#sender_label.text = current_email.sender
-		#sender_label.add_theme_font_size_override("font_size", 14)
-		#sender_margin.add_child(sender_label)
-		#email_container.add_child(sender_margin)
+	var panel = Panel.new()
+	panel.custom_minimum_size = Vector2(0, 50)
+	panel.connect("gui_input", Callable(self, "_on_email_click").bind(current_email))
+	panel.add_child(email_container)
+	panel.mouse_filter = Control.MOUSE_FILTER_STOP
+	$Sent_Items/Sent_Vbox.add_child(panel) 
 
-		#var subject_margin = MarginContainer.new()
-		#subject_margin.add_theme_constant_override("margin_left", 10)
-		#var subject_label = Label.new()
-		#subject_label.text = current_email.subject
-		#subject_margin.add_child(subject_label)
-		#email_container.add_child(subject_margin)
+	for child in $Unread_Messages/Unread_Vbox.get_children():
+		if child.get_child_count() > 0:
+			var container = child.get_child(0)
+			if container is VBoxContainer and container.get_child_count() > 1:
+				var subject_check = container.get_child(1)
+				if subject_check is Label and subject_check.text == current_email.subject:
+					child.queue_free()
+					break
 
-		#var panel = Panel.new()
-		#panel.custom_minimum_size = Vector2(0, 50)
-		#panel.add_child(email_container)
-		#panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
-
-		$Sent_Items/Sent_Vbox.add_child(panel)
-		#print("Marking answered:", current_email["subject"])
-		#$Response/Submit_Button.visible = false This makes it happen for all. Maybe a answered flag?
-		update_email_counters()
+	#$Sent_Items/Sent_Vbox.add_child(panel)
+	update_email_counters()
 
 func _on_exit_button_pressed() -> void: #button to quit the game
 	get_tree().quit()
