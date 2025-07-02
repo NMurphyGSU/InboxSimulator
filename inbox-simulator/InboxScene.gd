@@ -177,22 +177,35 @@ func get_sender_name(sender_id: int) -> String: #Helper method for the senders
 	return sender_lookup.get(sender_id, "Unknown Sender")
 
 func populate_unread_emails(): # will handle formatting mostly
-	if current_email == null:
-		print("current email is null")
-		return
 	
-	var email = current_email
+	print("Running populate_unread_emails")
+	if current_email == null:
+		print("current_email is null")
+		return
+
+	if !current_email.has("sender_id") or !current_email.has("subject"):
+		print("current_email missing required fields")
+		return
+
+	var sid = current_email["sender_id"]
+	var subject = current_email["subject"]
+	
+	#if current_email == null:
+	#	print("current email is null")
+	#	return
+	
+	#var email = current_email
 	#for current_email in emails: #for each email that is inside of the emails array (runs for each email)
-	var sid = email["sender_id"] #assigns the sender id of that email to sid
-	var subject = email["subject"] #assigns the subject of the email to the subject variable
-	if email == null: #if that email is null then
-		print("email is null") #tell me that email is null
+	#var sid = email["sender_id"] #assigns the sender id of that email to sid
+	#var subject = email["subject"] #assigns the subject of the email to the subject variable
+	#if email == null: #if that email is null then
+	#	print("email is null") #tell me that email is null
 		#continue
-		return
-	if !email.has("sender_id") or !email.has("subject"): #if that same email does not have a sender id or it does not have a subject
-		print("email missing required fields:", email) #tell me the missing pieces
+	#	return
+	#if !email.has("sender_id") or !email.has("subject"): #if that same email does not have a sender id or it does not have a subject
+	#	print("email missing required fields:", email) #tell me the missing pieces
 		#continue
-		return
+	#	return
 		#-----This part allows me to fiddle with the formatting but as of now it breaks the read/unread portion. Leaving for now----------------------------
 		#var sender_margin = MarginContainer.new()
 		#sender_margin.add_theme_constant_override("margin_left", 10)
@@ -213,25 +226,25 @@ func populate_unread_emails(): # will handle formatting mostly
 		#email_container.add_child(subject_margin)
 		#--------------------------------------------------------------------------------------------------------------------------------------------------
 		
-		var email_container = VBoxContainer.new()
-		var sender_label = Label.new() #Create a label for the vbox for the Sender
-		sender_label.text = get_sender_name(sid) #populate it ***I think this line is the issue?***
-		sender_label.add_theme_font_size_override("font_size", 14) #formatting
-		sender_label.add_theme_constant_override("margin_left", 50) #formatting This line isn't working **because it isn't a margin container. Will fix
-		email_container.add_child(sender_label) #adds the sender info the the email
-		
-		var subject_label = Label.new() #creates a new label called subject_name
-		subject_label.text = subject #populates the text from the subject_label with the subject 
-		subject_label.add_theme_font_size_override("font_size", 10)#formatting
-		subject_label.add_theme_constant_override("margin_left", 50)#formatting Fix to margin container
-		email_container.add_child(subject_label) #adds the subject to the email
+	var email_container = VBoxContainer.new()
+	var sender_label = Label.new() #Create a label for the vbox for the Sender
+	sender_label.text = get_sender_name(sid) #populate it ***I think this line is the issue?***
+	sender_label.add_theme_font_size_override("font_size", 14) #formatting
+	sender_label.add_theme_constant_override("margin_left", 50) #formatting This line isn't working **because it isn't a margin container. Will fix
+	email_container.add_child(sender_label) #adds the sender info the the email
+	
+	var subject_label = Label.new() #creates a new label called subject_name
+	subject_label.text = subject #populates the text from the subject_label with the subject 
+	subject_label.add_theme_font_size_override("font_size", 10)#formatting
+	subject_label.add_theme_constant_override("margin_left", 50)#formatting Fix to margin container
+	email_container.add_child(subject_label) #adds the subject to the email
 
-		var panel = Panel.new()
-		panel.custom_minimum_size = Vector2(0, 50)
-		panel.connect("gui_input", Callable(self, "_on_email_click").bind(email))
-		panel.add_child(email_container)
-		panel.mouse_filter = Control.MOUSE_FILTER_STOP
-		$Unread_Messages/Unread_Vbox.add_child(panel) 
+	var panel = Panel.new()
+	panel.custom_minimum_size = Vector2(0, 50)
+	panel.connect("gui_input", Callable(self, "_on_email_click").bind(email))
+	panel.add_child(email_container)
+	panel.mouse_filter = Control.MOUSE_FILTER_STOP
+	$Unread_Messages/Unread_Vbox.add_child(panel) 
 
 func check_criteria(email: Dictionary, criteria: String) -> bool: #Helper for answer checking
 	if criteria == "":
@@ -253,30 +266,27 @@ func check_criteria(email: Dictionary, criteria: String) -> bool: #Helper for an
 	return actual_value == expected_value
 
 func load_emails(): #will use to work though the dialogue tree and then send to populate
-	#if current_email == null:
-	#	print("current_email is null at start of load_emails()")
-	#	return
 
-	if current_email == null and current_node_id != 0:
+	#for i in range(emails.size()):
+	#	var email = emails[i]
+	#	if email.get("id", 0) == 1:
+	#		print("Found email with id=1 as start:", email.get("subject", "No subject"))
+	#		current_email = email
+	#		index = i
+	#		current_node_id = 1
+	#		populate_unread_emails()
+	#		return
+
+	if emails.size() > 0:
+		current_email = emails[0]
+		index = 0
+		current_node_id = current_email.get("id", 0)
+		print("Fallback: loaded first email:", current_email.get("subject", "No subject"))
+		populate_unread_emails()
 		return
 
-	#print(">>> When loading, current_email has keys:", current_email.keys())
+	print("No emails available to load.")
 
-	for i in range(emails.size()): #iterates by index in the email array
-		var email = emails[i] #grabs the dictionary at that index so the rest of the loop can work with a shorter name
-		for branch in branches: #for each branch we will test whether this email belongs to that branch's from/to path
-			print("Checking branch from:", branch["from"], "against current_node_id:", current_node_id) #print a debug 
-			if branch["from"] == current_node_id: #only branches whos from matches the current node are relavent here if they are true, current node id might be wrong or JSON might store from as a string?
-				var criteria_string = branch["criteria"] #saves the q1_correct=1 or other here
-				if check_criteria(email, criteria_string): #sends it to the helper
-					print("✔ Found matching email:", email["subject"]) #debug 
-					current_email = email #places the email that I need
-					current_node_id = branch["to"] #advances dialogue pointer for next decision cycle
-					index = i #stores where I am in the email array
-					print("Loading current_email:", current_email) #debug 
-					populate_unread_emails() #sends the email to the method that will populate the UI
-					return  # Only load the first matching email
-	print("❌ No matching email found.")
 		#-----Dialogue tree for email flow---------------------------------------------------------
 	#start with the top of the dialogue tree
 		
@@ -311,23 +321,36 @@ func populate_questions(): #populate the questions into the form
 func load_questions(): #will load the questions per the dialogue tree
 	pass
 
-func _on_email_selected(email): #when an email is selected
-	#pass
-#-----Testing---------------------------------------------------------------------------------------	
+func _on_email_selected(email):
+	if email == null:
+		print("Attempted to select a null email")
+		return
+
+	if not email.has("sender_id"):
+		print("Email missing 'sender_id':", email)
+		return
+
+	if not email.has("subject"):
+		print("Email missing 'subject':", email)
+		return
+
+	if not email.has("question"):
+		print("Email missing 'question':", email)
+		return
+
 	current_email = email
 	var sid = email["sender_id"]
 
 	var full_text = "[color=black][b]From:[/b] %s\n[b]Subject:[/b] %s\n\n%s[/color]" % [
-		get_sender_name(sid), 
-		email.subject,
-		email.question
+		get_sender_name(sid),
+		email["subject"],
+		email["question"]
 	]
 	$Main_Message/Main_Area.bbcode_text = full_text
 
-	if not email.read: 
-		
+	if not email.get("read", false):
 		var email_container = VBoxContainer.new()
-		
+
 		var sender_margin = MarginContainer.new()
 		sender_margin.add_theme_constant_override("margin_left", 10)
 		sender_margin.add_theme_constant_override("margin_top", 5)
@@ -344,7 +367,7 @@ func _on_email_selected(email): #when an email is selected
 		subject_label.add_theme_font_size_override("font_size", 10)
 		subject_margin.add_child(subject_label)
 		email_container.add_child(subject_margin)
-		
+
 		var panel = Panel.new()
 		panel.custom_minimum_size = Vector2(0, 50)
 		panel.connect("gui_input", Callable(self, "_on_email_click").bind(email))
@@ -358,15 +381,21 @@ func _on_email_selected(email): #when an email is selected
 				var container = child.get_child(0)
 				if container is VBoxContainer and container.get_child_count() > 1:
 					var subject_check = container.get_child(1)
-					if subject_check is Label and subject_check.text == email.subject:
+					if subject_check is Label and subject_check.text == email["subject"]:
 						child.queue_free()
 						break
-	
-	email.read = true
+
+	email["read"] = true
 	update_email_counters()
+
+
+
 
 func _on_email_click(event: InputEvent, email): #when the user clicks the emails
 	if event is InputEventMouseButton and event.pressed:
+		if email == null:
+			print("Attempted to select a null email.")
+			return
 		_on_email_selected(email)
 
 func update_email_counters(): #handles the counters on the side panel
