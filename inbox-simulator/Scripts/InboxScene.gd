@@ -1,0 +1,572 @@
+extends Node2D
+
+#-----Dummy copy for testing-------------------------------------
+#var json_path = "res://emails.json"
+var companyinfo_path = "res://sample-data/companyinf.json" #keep this for now
+var yourrole_path = "res://sample-data/yourrole.json" #keep this for now
+
+#var emails: Array = []
+#var current_email = null
+var companyinfo = ""
+var role = ""
+#----------------------------------------------------------------
+
+#-----Sample data for functionality------------------------------
+var dialogue_path = "res://sample-data/dialog-tree.json" #dialogue tree JSON file
+var trees: Array = []
+var branches: Array = []
+var index = 0
+var from = null
+var to = null
+var current_node_id = 0
+var correct
+var check = ""
+
+var next_email_id = 0 #TODO Simple way to load next email in list
+var questions_path = "res://sample-data/questions.json" #questions JSON file
+var emails: Array = []
+var email
+var current_email = null
+var scenario_id = 1 #do we want this assigned?
+var questions
+var id
+var sender_id
+var subject = ""
+var question = ""
+var randomize_answers = true
+var answers
+var text = ""
+var criteria = ""
+var selected_answer_dict : Dictionary = {}
+
+
+var scenario_path = "res://sample-data/scenario.json" #scenario JSON file
+var scenario: Array = [] #criteria in dictionary
+var scenario_name  = ""
+var show_end_results = true #Will allow students to see or not to see results
+
+var senders_path = "res://sample-data/senders.json" #senders JSON file
+var senders = []
+var sender_name
+var title = ""
+var color #This should be a circle in this color next to the sender's name- save as an array and then select the color from there
+var sender_lookup = {}
+var sid
+#---------------------------------------------------------------------------------------------------
+
+func _ready():
+	$Read_Messages.visible = false
+	$Unread_Messages.visible = true
+	$Response.visible = false
+	$Answer.visible = false
+	$Sent_Items.visible = false
+	$Company_Info.visible = false
+	$Your_Role.visible = false
+
+
+#-----Testing---------------------------------------------------------------------------------------
+	#var file = FileAccess.open(json_path, FileAccess.READ) #Dummy email file
+	#assert(file.file_exists(json_path), "File path does not exist")
+	#var json = file.get_as_text()
+	#var json_object = JSON.new()
+	#json_object.parse(json)
+	#emails = json_object.data
+	#populate_unread_emails()
+	#update_email_counters()
+
+	var info = FileAccess.open(companyinfo_path, FileAccess.READ) #Dummy company info file 
+	assert(info.file_exists(companyinfo_path), "File path does not exist")
+	companyinfo = info.get_as_text()
+	populate_company_info()
+	
+	var yourrole = FileAccess.open(yourrole_path, FileAccess.READ) #Dummy your role file
+	assert(yourrole.file_exists(yourrole_path), "File path does not exist")
+	role = yourrole.get_as_text()
+	populate_yourrole()
+#---------------------------------------------------------------------------------------------------
+
+
+#-----Sample Data-----------------------------------------------------------------------------------
+	
+	#questions file
+	var questions_file = FileAccess.open(questions_path, FileAccess.READ) #Questions.json
+	assert(questions_file.file_exists(questions_path), "File path does not exist")
+	var quest = questions_file.get_as_text()
+	var quest_object = JSON.new()
+	quest_object.parse(quest)
+	emails = quest_object.data["questions"] #<--will likely need
+	
+	#debug because nothing wants to work (working now)
+	#for i in emails.size():
+		#var e = emails[i]
+		#print("email at index %d:" % i, e)
+		#print("emailonready")
+		#print("has sender_id:", e.has("sender_id"))
+		#print("value of sender_id:", e.get("sender_id", "MISSING"))
+
+	for email in emails:
+		email["read"] = false
+		#print(email)
+		#print(typeof(email))
+
+	
+
+	#dialogue-tree file
+	var dialogue_file = FileAccess.open(dialogue_path, FileAccess.READ) #dialogue-tree.json
+	assert(dialogue_file.file_exists(dialogue_path), "File path does not exist")
+	var dialogue = dialogue_file.get_as_text()
+	var dialogue_object = JSON.new()
+	dialogue_object.parse(dialogue)
+	var tree_data = dialogue_object.get_data()
+	branches = tree_data["trees"][0]["branches"]
+
+
+	
+	#scenario file
+	var scenario_file = FileAccess.open(scenario_path, FileAccess.READ) #Scenario.json
+	assert(scenario_file.file_exists(scenario_path), "File path does not exist")
+	var scen = scenario_file.get_as_text()
+	var scen_object = JSON.new()
+	scen_object.parse(scen)
+	
+	#senders file
+	var senders_file = FileAccess.open(senders_path, FileAccess.READ) #Senders.json
+	assert(senders_file.file_exists(senders_path), "File path does not exist")
+	var send = senders_file.get_as_text()
+	var senders_object = JSON.new()
+	senders_object.parse(send)
+	#print(typeof(senders_object.data))  
+	#print(senders_object.data)          
+
+	for sender in senders_object.data["senders"]:
+		sender_lookup[int(sender["id"])] = sender["name"] #key value pairs
+		
+	#print("sender_lookup populated with:", sender_lookup) #this is correct
+	
+	load_emails() 
+	update_email_counters() #this works yay!
+	#---------------------------------------------------------------------------------------------------
+
+func _process(_delta: float) -> void:
+	pass
+
+func populate_company_info():
+	var label = $Company_Info/Company_Info_Message
+	label.clear()
+
+	if companyinfo:
+		label.append_text("[color=#4EC1E0]%s[/color]" % companyinfo)
+	else:
+		label.append_text("[i][color=gray]No company info available.[/color][/i]")
+
+func populate_yourrole():
+	var label = $Your_Role/Your_Role_Message
+	label.clear()
+
+	if role:
+		label.append_text("[color=#4EC1E0]%s[/color]" % role)
+	else:
+		label.append_text("[i][color=gray]No company info available.[/color][/i]")		
+
+func get_sender_name(sender_id: int) -> String: #Helper method for the senders
+	
+	#if sender_id == null:
+	#	print("sender_id null")
+	#else: 
+	#	print("sender_id still good")
+	 
+	return sender_lookup.get(sender_id, "Unknown Sender")
+
+func populate_unread_emails(): # will handle formatting mostly
+	
+	print("Running populate_unread_emails")
+	if current_email == null:
+		print("current_email is null")
+		return
+
+	if !current_email.has("sender_id") or !current_email.has("subject"):
+		print("current_email missing required fields")
+		return
+
+	var sid = current_email["sender_id"]
+	var subject = current_email["subject"]
+	
+	#if current_email == null:
+	#	print("current email is null")
+	#	return
+	
+	#var email = current_email
+	#for current_email in emails: #for each email that is inside of the emails array (runs for each email)
+	#var sid = email["sender_id"] #assigns the sender id of that email to sid
+	#var subject = email["subject"] #assigns the subject of the email to the subject variable
+	#if email == null: #if that email is null then
+	#	print("email is null") #tell me that email is null
+		#continue
+	#	return
+	#if !email.has("sender_id") or !email.has("subject"): #if that same email does not have a sender id or it does not have a subject
+	#	print("email missing required fields:", email) #tell me the missing pieces
+		#continue
+	#	return
+		#-----This part allows me to fiddle with the formatting but as of now it breaks the read/unread portion. Leaving for now----------------------------
+		#var sender_margin = MarginContainer.new()
+		#sender_margin.add_theme_constant_override("margin_left", 10)
+		#sender_margin.add_theme_constant_override("margin_top", 5)
+		#var sender_label = Label.new()
+		#sender_label.text = get_sender_name(sid)
+		#sender_label.add_theme_font_size_override("font_size", 14)
+		#email_container.add_child(sender_label)
+		#sender_margin.add_child(sender_label)
+		#email_container.add_child(sender_margin)
+
+		#var subject_margin = MarginContainer.new()
+		#subject_margin.add_theme_constant_override("margin_left", 10)
+		#var subject_label = Label.new()
+		#subject_label.text = email["subject"]
+		#subject_label.add_theme_font_size_override("font_size", 10)
+		#subject_margin.add_child(subject_label)
+		#email_container.add_child(subject_margin)
+		#--------------------------------------------------------------------------------------------------------------------------------------------------
+		
+	var email_container = VBoxContainer.new()
+	var sender_label = Label.new() #Create a label for the vbox for the Sender
+	sender_label.text = get_sender_name(sid) #populate it ***I think this line is the issue?***
+	sender_label.add_theme_font_size_override("font_size", 14) #formatting
+	sender_label.add_theme_constant_override("margin_left", 50) #formatting This line isn't working **because it isn't a margin container. Will fix
+	email_container.add_child(sender_label) #adds the sender info the the email
+	
+	var subject_label = Label.new() #creates a new label called subject_name
+	subject_label.text = subject #populates the text from the subject_label with the subject 
+	subject_label.add_theme_font_size_override("font_size", 10)#formatting
+	subject_label.add_theme_constant_override("margin_left", 50)#formatting Fix to margin container
+	email_container.add_child(subject_label) #adds the subject to the email
+
+	var panel = Panel.new()
+	panel.custom_minimum_size = Vector2(0, 50)
+	panel.connect("gui_input", Callable(self, "_on_email_click").bind(current_email["id"]))
+	panel.add_child(email_container)
+	panel.mouse_filter = Control.MOUSE_FILTER_STOP
+	$Unread_Messages/Unread_Vbox.add_child(panel)
+	#Add to top of inbox
+	$Unread_Messages/Unread_Vbox.move_child(panel, 0)
+
+func check_criteria(email: Dictionary, criteria: String) -> bool: #Helper for answer checking
+	if criteria == "":
+		return true  # If there's no condition, treat as always true
+
+	var parts = criteria.split("=")
+	if parts.size() != 2:
+		print("Invalid criteria format:", criteria)
+		return false
+
+	var key = parts[0]
+	var expected_value = int(parts[1])
+
+	if not email.has(key):
+		print("Email missing key:", key)
+		return false
+
+	var actual_value = int(email[key])
+	return actual_value == expected_value
+
+func load_emails(): #will use to work though the dialogue tree and then send to populate
+
+	#for i in range(emails.size()):
+	#	var email = emails[i]
+	#	if email.get("id", 0) == 1:
+	#		print("Found email with id=1 as start:", email.get("subject", "No subject"))
+	#		current_email = email
+	#		index = i
+	#		current_node_id = 1
+	#		populate_unread_emails()
+	#		return
+
+	if emails.size() > 0:
+		current_email = emails[next_email_id]
+		index = 0
+		current_node_id = current_email.get("id", 0)
+		print("Fallback: loaded first email:", current_email.get("subject", "No subject"))
+		populate_unread_emails()
+		return
+
+	print("No emails available to load.")
+
+		#-----Dialogue tree for email flow---------------------------------------------------------
+	#start with the top of the dialogue tree
+		
+
+			
+		#get branches
+		#what is from          check criteria for correctness for navigation to next to
+		#if criteria correct
+		#to
+		#else to
+		#increment scenario_id  Is this correct? Do we want to increment here or later? Not enough JSON info?
+		
+		#else if                allows more questions in scenario 1
+		#what is from           check criteria for correctness for navigation to next to
+		#get branches
+		#if criteria correct
+		#to
+		#else to
+		#show to 
+		#increment scenario id
+		#Oh, maybe could use recursion here?
+		
+	if current_email == null:
+		print("current_email is null at the end of load emails")
+		return
+			
+		
+
+func populate_questions(): #populate the questions into the form
+	pass
+
+func load_questions(): #will load the questions per the dialogue tree
+	pass
+
+func _on_email_selected(email):
+	if email == null:
+		print("Attempted to select a null email")
+		return
+
+	if not email.has("sender_id"):
+		print("Email missing 'sender_id':", email)
+		return
+
+	if not email.has("subject"):
+		print("Email missing 'subject':", email)
+		return
+
+	if not email.has("question"):
+		print("Email missing 'question':", email)
+		return
+
+	current_email = email
+	var sid = email["sender_id"]
+
+	var full_text = "[color=black][b]From:[/b] %s\n[b]Subject:[/b] %s\n\n%s[/color]" % [
+		get_sender_name(sid),
+		email["subject"],
+		email["question"].replace("[FirstName]", Singleton.Current_Username)
+	]
+	$Main_Message/Main_Area.bbcode_text = full_text
+
+	if not email.get("read", false):
+		var email_container = VBoxContainer.new()
+
+		var sender_margin = MarginContainer.new()
+		sender_margin.add_theme_constant_override("margin_left", 10)
+		sender_margin.add_theme_constant_override("margin_top", 5)
+		var sender_label = Label.new()
+		sender_label.text = get_sender_name(sid)
+		sender_label.add_theme_font_size_override("font_size", 14)
+		sender_margin.add_child(sender_label)
+		email_container.add_child(sender_margin)
+
+		var subject_margin = MarginContainer.new()
+		subject_margin.add_theme_constant_override("margin_left", 10)
+		var subject_label = Label.new()
+		subject_label.text = email["subject"]
+		subject_label.add_theme_font_size_override("font_size", 10)
+		subject_margin.add_child(subject_label)
+		email_container.add_child(subject_margin)
+
+		var panel = Panel.new()
+		panel.custom_minimum_size = Vector2(0, 50)
+		panel.connect("gui_input", Callable(self, "_on_email_click").bind(email["id"]))
+		panel.add_child(email_container)
+		panel.mouse_filter = Control.MOUSE_FILTER_STOP
+
+		$Read_Messages/Read_Vbox.add_child(panel)
+
+		#for child in $Unread_Messages/Unread_Vbox.get_children():
+			#if child.get_child_count() > 0:
+				#var container = child.get_child(0)
+				#if container is VBoxContainer and container.get_child_count() > 1:
+					#var subject_check = container.get_child(1)
+					#if subject_check is Label and subject_check.text == email["subject"]:
+						#child.queue_free()
+						#break
+
+	email["read"] = true
+	update_email_counters()
+
+
+
+
+func _on_email_click(event: InputEvent, email_id): #when the user clicks the emails
+	if event is InputEventMouseButton and event.pressed:
+		email_id -= 1
+		if email_id < 0:
+			print("Attempted to select a null email.")
+			return
+			
+		#TODO Automate this
+		$Response/Answer_A.button_pressed = false
+		$Response/Answer_B.button_pressed = false
+		$Response/Answer_C.button_pressed = false
+		$Response/Answer_D.button_pressed = false
+		$Response/Answer_E.button_pressed = false
+			
+		id = email_id
+		_on_email_selected(emails[email_id])
+
+func update_email_counters(): #handles the counters on the side panel
+	var inbox_count = 0
+	var sent_count = 0
+
+
+#Keep this--------------------
+	for email in emails:
+		if email.get("answered", false):
+			sent_count += 1
+		else:
+			inbox_count += 1
+#-----------------------------
+	#for email in emails:
+		#print(email["subject"], " answered? ", email.get("answered", false))
+
+	$Side_Panel/Inbox_Number.text = str(inbox_count)
+	$Side_Panel/Sent_Items_Number.text = str(sent_count)
+
+#-----Mostly handles panel switching between objects in the game-------------------------------------------
+
+func _on_submit_button_pressed() -> void: #handles what happens when the user answers the emails **probably put attribute info here**
+	$Response.visible = false
+	$Answer.visible = false
+	
+	var bgroup = $Response/Answer_A.button_group
+	var selected_button = bgroup.get_pressed_button()
+	
+	print(selected_button.get_meta("criteria"))
+	
+
+	var criteria_str: String = selected_button.get_meta("criteria")
+	
+	var is_correct := criteria_str.ends_with("=1")
+	
+	var key_name := criteria_str.split("=")[0]
+	current_email[key_name] = 1 if is_correct else 0
+	
+	#print("Recorded", key_name, "=", current_email[key_name])
+	#print("Object ID:", current_email.get_instance_id())
+	#print("Object ID in emails array:", emails[index].get_instance_id())
+
+	#current_email["answered"] = true
+	
+	#TODO Pull logic from data
+	if next_email_id == 0:
+		if is_correct:
+			next_email_id = 1
+		else:
+			next_email_id = 2
+	else:
+		get_tree().change_scene_to_file("res://Scenes/self_assessment_scene.tscn")
+	
+	load_emails()
+	
+	
+	#if current_email and not current_email.get("answered", false):
+	#current_email["answered"] = true
+	#var unread_box = $Unread_Messages/Unread_Vbox
+	#var read_box = $Read_Messages/Read_Vbox
+	#for box in [unread_box, read_box]:
+		#for child in box.get_children():
+			#if child.get_child_count() > 0:
+				#var container = child.get_child(0)
+				#if container is VBoxContainer and container.get_child_count() > 1:
+					#var subject_check = container.get_child(1)
+					#if subject_check is MarginContainer and subject_check.get_child_count() > 0: #check this one
+						#var subject_check_label = subject_check.get_child(0)
+						#if subject_check_label is Label and subject_check_label.text == current_email.subject:
+							#child.queue_free()
+							#break
+	#var email_container = VBoxContainer.new()
+		#
+	#var sender_label = Label.new() #Create a label for the vbox for the Sender
+	#sender_label.text = get_sender_name(current_email["sender_id"]) #populate it ***I think this line is the issue?***
+	#sender_label.add_theme_font_size_override("font_size", 14) #formatting
+	#sender_label.add_theme_constant_override("margin_left", 50) #formatting This line isn't working **because it isn't a margin container. Will fix
+	#email_container.add_child(sender_label) #adds the sender info the the email
+	#
+	#var subject_label = Label.new() #creates a new label called subject_name
+	#subject_label.text = current_email["subject"] #populates the text from the subject_label with the subject 
+	#subject_label.add_theme_font_size_override("font_size", 10)#formatting
+	#subject_label.add_theme_constant_override("margin_left", 50)#formatting Fix to margin container
+	#email_container.add_child(subject_label) #adds the subject to the email
+#
+	#var panel = Panel.new()
+	#panel.custom_minimum_size = Vector2(0, 50)
+	#panel.connect("gui_input", Callable(self, "_on_email_click").bind(current_email["id"]))
+	#panel.add_child(email_container)
+	#panel.mouse_filter = Control.MOUSE_FILTER_STOP
+	#$Sent_Items/Sent_Vbox.add_child(panel) 
+#
+	#for child in $Unread_Messages/Unread_Vbox.get_children():
+		#if child.get_child_count() > 0:
+			#var container = child.get_child(0)
+			#if container is VBoxContainer and container.get_child_count() > 1:
+				#var subject_check = container.get_child(1)
+				#if subject_check is Label and subject_check.text == current_email.subject:
+					#child.queue_free()
+					#break
+
+	#$Sent_Items/Sent_Vbox.add_child(panel)
+	update_email_counters()
+
+func _on_exit_button_pressed() -> void: #button to quit the game
+	get_tree().quit()
+
+func _on_read_unread_toggled(toggled_on: bool) -> void: #flips back and forth between read and unread 
+	$Read_Messages.visible = toggled_on
+	$Unread_Messages.visible = not toggled_on
+
+func _on_reply_pressed() -> void: #when the reply button is pressed
+	$Response.visible = true
+	
+	#TODO: Make dynamics
+	$Response/Response_1.text = emails[id].answers[0].text
+	$Response/Answer_A.set_meta ("criteria", emails[id].answers[0].criteria)
+	$Response/Response_2.text = emails[id].answers[1].text
+	$Response/Answer_B.set_meta ("criteria", emails[id].answers[1].criteria)
+	$Response/Response_3.text = emails[id].answers[2].text
+	$Response/Answer_C.set_meta ("criteria", emails[id].answers[2].criteria)
+	$Response/Response_4.text = emails[id].answers[3].text
+	$Response/Answer_D.set_meta ("criteria", emails[id].answers[3].criteria)
+	$Response/Response_5.text = emails[id].answers[4].text
+	$Response/Answer_E.set_meta ("criteria", emails[id].answers[4].criteria)
+	return
+
+func _on_close_button_pressed() -> void: #when the close button is pressed
+	$Response.visible = false
+	$Answer.visible = false
+
+func _on_sent_items_button_pressed() -> void: #sent items button pressed
+	$Sent_Items.visible = true
+	$Unread_Messages.visible = false
+	$Read_Messages.visible = false
+	$Read_Unread.visible = false
+	$Your_Role.visible = false
+	$Company_Info.visible = false
+
+func _on_inbox_button_pressed() -> void: #inbox button pressed
+	$Unread_Messages.visible = true
+	$Read_Messages.visible = false
+	$Read_Unread.visible  = true
+	$Sent_Items.visible = false
+	$Company_Info.visible = false
+	$Your_Role.visible = false
+
+func _on_company_info_button_pressed() -> void: #company info pressed
+	$Company_Info.visible = true
+	$Your_Role.visible = false
+
+func _on_x_button_pressed() -> void: #xbutton pressed
+	$Company_Info.visible = false
+
+func _on_x_button_2_pressed() -> void: #xbutton2 pressed
+	$Your_Role.visible = false
+
+func _on_your_role_button_pressed() -> void: #your role button pressed
+	$Your_Role.visible = true
+	$Company_Info.visible = false

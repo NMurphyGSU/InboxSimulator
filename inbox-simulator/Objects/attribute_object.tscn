@@ -1,0 +1,52 @@
+[gd_scene load_steps=4 format=3 uid="uid://bnbkvx831pfkv"]
+
+[ext_resource type="Script" path="res://Scripts/attribute.gd" id="1_s2mo0"]
+
+[sub_resource type="LabelSettings" id="LabelSettings_cpwjd"]
+font_size = 30
+
+[sub_resource type="LabelSettings" id="LabelSettings_suj2q"]
+font_size = 40
+
+[node name="Control" type="Control"]
+layout_mode = 3
+anchors_preset = 0
+offset_right = 370.0
+offset_bottom = 100.0
+script = ExtResource("1_s2mo0")
+
+[node name="Panel" type="Panel" parent="."]
+layout_mode = 0
+offset_right = 1280.0
+offset_bottom = 100.0
+
+[node name="Label_Attribute" type="Label" parent="."]
+layout_mode = 0
+offset_left = 32.0
+offset_top = 30.0
+offset_right = 233.0
+offset_bottom = 72.0
+text = "Attribute
+"
+label_settings = SubResource("LabelSettings_cpwjd")
+horizontal_alignment = 1
+vertical_alignment = 1
+uppercase = true
+
+[node name="HSlider_Attribute" type="HSlider" parent="."]
+layout_mode = 0
+offset_left = 257.0
+offset_top = 43.0
+offset_right = 1026.0
+offset_bottom = 59.0
+
+[node name="Label_Value" type="Label" parent="."]
+layout_mode = 0
+offset_left = 1092.0
+offset_top = 23.0
+offset_right = 1209.0
+offset_bottom = 75.0
+text = "000"
+label_settings = SubResource("LabelSettings_suj2q")
+horizontal_alignment = 1
+vertical_alignment = 1

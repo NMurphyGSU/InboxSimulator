@@ -1,0 +1,19 @@
+{
+  "trees": [
+	{
+        "scenario_id": 1,
+        "branches": [
+            {
+                "from": 1,
+                "to": 2,
+                "criteria": "q1_correct=1"
+            },
+            {
+                "from": 1,
+                "to": 3,
+                "criteria": "q1_correct=0"
+            }
+        ]
+	}
+  ]
+}

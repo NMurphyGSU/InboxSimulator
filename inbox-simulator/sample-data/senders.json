@@ -1,0 +1,17 @@
+{
+    "senders": [
+        {
+            "id": 1,
+            "name": "Sturges Scrappy",
+            "title": "VP of Strategy",
+            "color": "rgb(251,246,181)"
+        },
+	{
+            "id": 2,
+            "name": "Brandon Stewart",
+            "title": "P of Strategy",
+            "color": "rgb(251,246,181)"
+        }
+
+    ]
+}

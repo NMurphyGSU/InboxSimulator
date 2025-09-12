@@ -1,0 +1,76 @@
+[gd_scene load_steps=4 format=3 uid="uid://bv7o7amfbnwni"]
+
+[ext_resource type="Script" path="res://Scripts/self_assessment.gd" id="1_v4xl4"]
+
+[sub_resource type="LabelSettings" id="LabelSettings_1u2pi"]
+font_size = 20
+
+[sub_resource type="LabelSettings" id="LabelSettings_6xvl3"]
+font_size = 50
+
+[node name="Self Assessment Scene" type="Node"]
+
+[node name="CanvasLayer" type="CanvasLayer" parent="."]
+
+[node name="Control" type="Control" parent="CanvasLayer"]
+layout_mode = 3
+anchors_preset = 0
+offset_left = 1.0
+offset_top = 1.0
+offset_right = 1281.0
+offset_bottom = 721.0
+pivot_offset = Vector2(640, 360)
+script = ExtResource("1_v4xl4")
+
+[node name="Panel_Background" type="Panel" parent="CanvasLayer/Control"]
+layout_mode = 0
+offset_right = 1280.0
+offset_bottom = 720.0
+pivot_offset = Vector2(640, 360)
+
+[node name="ScrollContainer" type="ScrollContainer" parent="CanvasLayer/Control"]
+layout_mode = 0
+offset_top = 130.0
+offset_right = 1280.0
+offset_bottom = 630.0
+
+[node name="Control" type="Control" parent="CanvasLayer/Control/ScrollContainer"]
+custom_minimum_size = Vector2(370, 100)
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="Button_Proceed" type="Button" parent="CanvasLayer/Control"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = 443.0
+offset_top = 285.0
+offset_right = 593.0
+offset_bottom = 335.0
+grow_horizontal = 2
+grow_vertical = 2
+pivot_offset = Vector2(75, 25)
+text = "PROCEED
+"
+
+[node name="Label_Description" type="Label" parent="CanvasLayer/Control"]
+layout_mode = 0
+offset_left = 30.0
+offset_top = 79.0
+offset_right = 1253.0
+offset_bottom = 130.0
+text = "The Purpose of the assessment...."
+label_settings = SubResource("LabelSettings_1u2pi")
+
+[node name="Label_Title" type="Label" parent="CanvasLayer/Control"]
+layout_mode = 0
+offset_left = 237.0
+offset_right = 1019.0
+offset_bottom = 69.0
+text = "POST ASSESSMENT
+"
+label_settings = SubResource("LabelSettings_6xvl3")
+horizontal_alignment = 1

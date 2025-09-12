@@ -11,9 +11,13 @@ config_version=5
 [application]
 
 config/name="Inbox Simulator"
-run/main_scene="res://login_scene.tscn"
+run/main_scene="res://Scenes/login_scene.tscn"
 config/features=PackedStringArray("4.3", "Forward Plus")
 config/icon="res://icon.svg"
+
+[autoload]
+
+Singleton="*res://Scripts/Singleton.gd"
 
 [display]
 
