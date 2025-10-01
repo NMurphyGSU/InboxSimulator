@@ -5,8 +5,8 @@ extends Node2D
 var companyinfo_path = "res://sample-data/companyinf.json" #keep this for now
 var yourrole_path = "res://sample-data/yourrole.json" #keep this for now
 
-var emails: Array = []
-var current_email = null
+#var emails: Array = []
+#var current_email = null
 var companyinfo = ""
 var role = ""
 #----------------------------------------------------------------
