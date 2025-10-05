@@ -455,15 +455,30 @@ func _on_submit_button_pressed() -> void: #handles what happens when the user an
 	#current_email["answered"] = true
 	
 	#TODO Pull logic from data
-	if next_email_id == 0:
-		if is_correct:
-			next_email_id = 1
-		else:
-			next_email_id = 2
-	else:
-		get_tree().change_scene_to_file("res://Scenes/self_assessment_scene.tscn")
-	
-	load_emails()
+
+	func traversingQuestion() -> void:
+		var end = false
+		for branch in trees[0].branches:               #for-loop to traverse each branch/question
+			var target = branch.criteria.ends_with("=1")
+			if is_correct == target:                   #checks if the user input (is_correct) is equal to a branches' criteria
+				next_email_id = branch.to + 1          #traverses to next question
+				end = true
+				break
+			
+			if not end:
+				get_tree().change_scene_to_file("res://Scenes/self_assessment_scene.tscn")
+			else: 
+				load_emails()
+
+	#if next_email_id == 0:
+	#	if is_correct:
+	#		next_email_id = 1
+	#	else:
+	#		next_email_id = 2
+	#else:
+	#	get_tree().change_scene_to_file("res://Scenes/self_assessment_scene.tscn")
+	#
+	#load_emails()
 	
 	
 	#if current_email and not current_email.get("answered", false):
