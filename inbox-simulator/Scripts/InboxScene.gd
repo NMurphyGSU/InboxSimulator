@@ -438,6 +438,8 @@ func _on_submit_button_pressed() -> void: #handles what happens when the user an
 	var bgroup = $Response/Answer_A.button_group
 	var selected_button = bgroup.get_pressed_button()
 	
+	
+	
 	print(selected_button.get_meta("criteria"))
 	
 
@@ -447,7 +449,7 @@ func _on_submit_button_pressed() -> void: #handles what happens when the user an
 	
 	var key_name := criteria_str.split("=")[0]
 	current_email[key_name] = 1 if is_correct else 0
-	
+	traversingQuestion(criteria_str)
 	#print("Recorded", key_name, "=", current_email[key_name])
 	#print("Object ID:", current_email.get_instance_id())
 	#print("Object ID in emails array:", emails[index].get_instance_id())
@@ -455,30 +457,15 @@ func _on_submit_button_pressed() -> void: #handles what happens when the user an
 	#current_email["answered"] = true
 	
 	#TODO Pull logic from data
-
-	func traversingQuestion() -> void:
-		var end = false
-		for branch in trees[0].branches:               #for-loop to traverse each branch/question
-			var target = branch.criteria.ends_with("=1")
-			if is_correct == target:                   #checks if the user input (is_correct) is equal to a branches' criteria
-				next_email_id = branch.to + 1          #traverses to next question
-				end = true
-				break
-			
-			if not end:
-				get_tree().change_scene_to_file("res://Scenes/self_assessment_scene.tscn")
-			else: 
-				load_emails()
-
-	#if next_email_id == 0:
-	#	if is_correct:
-	#		next_email_id = 1
-	#	else:
-	#		next_email_id = 2
-	#else:
-	#	get_tree().change_scene_to_file("res://Scenes/self_assessment_scene.tscn")
-	#
-	#load_emails()
+				
+#	if next_email_id == 0:
+#		if is_correct:
+#			next_email_id = 1
+#		else:
+#			next_email_id = 2
+#	else:
+#		get_tree().change_scene_to_file("res://Scenes/self_assessment_scene.tscn")	
+#	load_emails()
 	
 	
 	#if current_email and not current_email.get("answered", false):
@@ -528,6 +515,22 @@ func _on_submit_button_pressed() -> void: #handles what happens when the user an
 
 	#$Sent_Items/Sent_Vbox.add_child(panel)
 	update_email_counters()
+#Attempted function
+func traversingQuestion(criteria_str: String) -> void:
+		var found = false
+		for branch in branches:
+			if criteria_str == branch.criteria:
+				next_email_id = branch.to -1
+				found = true
+				break
+			
+		if not found:
+			get_tree().change_scene_to_file("res://Scenes/self_assessment_scene.tscn")
+		else: 
+			load_emails()
+
+#call the function
+#traversingQuestion(is_correct)
 
 func _on_exit_button_pressed() -> void: #button to quit the game
 	get_tree().quit()
