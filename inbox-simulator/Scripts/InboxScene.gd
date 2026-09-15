@@ -24,9 +24,9 @@ var check = ""
 
 var next_email_id = 0 #TODO Simple way to load next email in list
 var questions_path = "res://sample-data/questions.json" #questions JSON file
-var emails: Array = []
+
 var email
-var current_email = null
+
 var scenario_id = 1 #do we want this assigned?
 var questions
 var id
